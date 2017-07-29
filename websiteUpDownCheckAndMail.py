@@ -13,6 +13,7 @@ from email.mime.text import MIMEText;
 
 def isUP(url):
     try:
+        #Or Add your code, to define what "A Website is UP" means to you...
         return str(urllib.urlopen(url).getcode()) == "200";
     except:
         return False;
