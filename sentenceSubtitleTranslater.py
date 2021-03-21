@@ -5,6 +5,15 @@ from string import digits
 from unidecode import unidecode
 from csv import reader, writer, DictReader
 from difflib import SequenceMatcher
+# Some manual works need to be done to translate the SRT.
+#IT cant be used off the shelf... few coding/modification is required
+#This was made just for me so... :)
+#How it works???
+#(Foreign SRT file) ---> (CSV File with Foreign/Untranslated Subtile)
+#(CSV File with Foreign/Untranslated Subtile)--> upload it to google sheet --> 
+# Add new Column in the googlesheet --> Insert formula =GOOGLETRANSLATE(D2;"fr";"en") which will translate the subtitle
+#Download the file as translated.csv
+#Run the code...
 
 inputSRTFileName = r"C:\Downloads\Amélie (2001) [BluRay] [1080p] [YTS.AM]\Amelie.srt"
 outputSRTFileName = r"C:\Downloads\Amélie (2001) [BluRay] [1080p] [YTS.AM]\TranslatedAmelie.srt"
@@ -28,19 +37,19 @@ def writeStringToFile(stringToWrite, fileToWrite):#
         text_file.write(stringToWrite)
         text_file.close()
 
+#This commented section is to create a CSV file from SRT File
+#use google spreadsheet to translate the CSV with formula =GOOGLETRANSLATE(D2;"fr";"en")
 # subtitleList=[["","","",""]]
 # for subtitle in parser.parse(inputSRTFileName):
 #     aL=[str(subtitle.index+1),adjustDate(subtitle.start),adjustDate(subtitle.end),str(subtitle.text)];
 #     subtitleList.append(aL);
 
 # saveSubtitleListToCSV(subtitleList,untranslatedCSVFile);
+
+#This Section is to Create a SRT File from a Translated CSV file. 
+#use google spreadsheet to translate the CSV with formula =GOOGLETRANSLATE(D2;"fr";"en")
 translatedSubtitle=csvToList(translatedCSVFile);
 newSubtitle=""
-# for ts in len(translatedSubtitle:
-#     newSubtitle+=ts[0]+"\n"+\
-#         ts[1]+" --> "+ts[2]+"\n"+\
-#                 ts[3]+"\n"+\
-#                     ts[4]+"\n\n"
 for i in range(len(translatedSubtitle)-1):
     newSubtitle+=translatedSubtitle[i][0]+"\n"+\
         translatedSubtitle[i][1]+" --> "+str(translatedSubtitle[i+1][1])[:-3]+"000"+"\n"+\
