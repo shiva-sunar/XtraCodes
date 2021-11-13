@@ -1,43 +1,46 @@
-#First Run this command in the command line to make vlc run with telnet interface listening
-#So that we can connect to it via telnet
-#&"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe" --extraintf telnet --telnet-password admin --telnet-host 127.0.0.1 --telnet-port 1000
-#For list of available commands you can connect to the telnet ie. -> telnet 127.0.0.1 1000
-#and Run the command "help"
+# First Run this command in the command line to make vlc run with telnet interface listening
+# So that we can connect to it via telnet
+# &"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe" --extraintf telnet --telnet-password admin --telnet-host 127.0.0.1 --telnet-port 1000
+# For list of available commands you can connect to the telnet ie. -> telnet 127.0.0.1 1000
+# and Run the command "help"
 
 import datetime
-import math
 from os import system
 from pysubparser import parser
 import telnetlib
 from time import sleep
 
-def seconds(t: datetime.time)->int:
+
+def seconds(t: datetime.time) -> int:
     return (t.hour * 60 + t.minute) * 60 + t.second
-def encode(s: str)->str:
+
+
+def encode(s: str) -> str:
     return s.encode('ascii')+b'\n'
 
-host="127.0.0.1"
-port=1000
-timeout=1
-password="admin"
-tn = telnetlib.Telnet(host=host,port=port,timeout=timeout)
+
+host = "127.0.0.1"
+port = 1000
+timeout = 1
+password = "admin"
+tn = telnetlib.Telnet(host=host, port=port, timeout=timeout)
 # Wait until the password is asked
 tn.read_until("Password:".encode("ascii"))
 # Enter the Password
 tn.write(encode(password))
-tn.read_until(encode(">"),timeout=1)
+tn.read_until(encode(">"), timeout=1)
 
-#=============================================
-#To run any command in VLC using telnet
-#tn.write(encode("Put Command Here))
+# =============================================
+# To run any command in VLC using telnet
+# tn.write(encode("Put Command Here))
 tn.write(encode("volup 2"))
-#=============================================
+# =============================================
 
-#Exit the telnet session
+# Exit the telnet session
 tn.write(encode("exit"))
 
 
-#Full List of Commands
+# Full List of Commands
 """
 +----[ VLM commands ]
 |help
