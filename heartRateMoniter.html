@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Spacebar Pressing Rate</title>
+        <script>
+            var pressCount = 0;
+            var pressArray = [];
+            var startTime = new Date().getTime();
+            
+            document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+            pressCount++;
+            var currentTime = new Date().getTime();
+            var elapsedTime = (currentTime - startTime) / 1000;
+            if (pressArray.length >= 10) {
+            pressArray.shift();
+            }
+            pressArray.push(elapsedTime);
+            console.log(pressArray)
+            var averageTime = (pressArray.length-1)/ (pressArray[pressArray.length - 1] - pressArray[0]) ;
+            var rate = Math.round(averageTime*60);
+            document.getElementById('output').innerHTML = 'Average rate: ' + rate + ' per minute';
+            }
+            });
+        </script>
+    </head>
+    <body>
+        <button id="button">Press Spacebar</button>
+        <div id="output"></div>
+    </body>
+</html>
