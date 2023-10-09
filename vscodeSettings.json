@@ -1,0 +1,33 @@
+{
+    "workbench.colorTheme": "Default Light+",
+    "security.workspace.trust.untrustedFiles": "open",
+    "terminal.integrated.inheritEnv": false,
+    "jupyter.askForKernelRestart": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python"
+    },
+    "editor.formatOnSave": true,
+    //By Shiva Sunar
+    // MultiCommands to clear, restart and run a notebook,
+    "multiCommand.commands": [
+        {
+            "command": "clearRestartRun",
+            "interval": 500,
+            "sequence": [
+                "notebook.clearAllCellsOutputs",
+                "jupyter.restartkernel",
+                "notebook.execute"
+            ]
+        }
+    ],
+    "files.autoSave": "afterDelay",
+    // Black Code Formatting Settings
+    "python.formatting.blackArgs": ["--line-length=100"],
+    "terminal.integrated.enableMultiLinePasteWarning": false,
+    "workbench.startupEditor": "none",
+    "notebook.lineNumbers": "on",
+    "notebook.output.textLineLimit": 1000,
+    "window.menuBarVisibility": "compact",
+    "git.ignoreMissingGitWarning": true,
+    "window.zoomLevel": 3,
+}
