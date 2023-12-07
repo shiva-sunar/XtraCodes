@@ -13,7 +13,7 @@ lsblk
 mount /dev/sdb2 /mnt
 
 # Copy the contents of /dev/sda to /mnt/clipped.dd in 256 MB chunks, showing progress
-dd if=/dev/sda of=/mnt/clipped.dd bs=256M status=progress
+dd if=/dev/sda of=/mnt/clipped.dd bs=256M count=60000000000 iflag=count_bytes status=progress
 
 
 
