@@ -54,10 +54,10 @@ menuentry "Start Shell" --id live-shell {
   $initrd_cmd /live/initrd.img
 }
 
-menuentry "Personal Clonning Cloning" --id live-ios {
+
+menuentry "Inbound FR SATA" --id live-ios {
   search --set -f /live/vmlinuz
-  $linux_cmd /live/vmlinuz boot=live union=overlay username=user config components quiet loglevel=0 noswap edd=on nomodeset enforcing=0 locales=en_US.UTF-8 keyboard-layouts=us ocs_live_run="lsblk  && sudo  sfdisk --delete /dev/sda  && sudo  mount /dev/sdb2 /mnt  && sudo  dd if=/mnt/clipped.dd of=/dev/sda bs=256M status=progress; sudo  sgdisk -e /dev/sda; sudo  parted /dev/sda resizepart 3 235GiB; sudo  ntfsresize --force --force /dev/sda3; reboot" ocs_live_extra_param="" ocs_live_batch="no" vga=788 ip= net.ifnames=0  nosplash i915.blacklist=yes radeonhd.blacklist=yes nouveau.blacklist=yes vmwgfx.enable_fbdev=1
+  $linux_cmd /live/vmlinuz boot=live union=overlay username=user config components quiet loglevel=0 noswap edd=on nomodeset enforcing=0 locales=en_US.UTF-8 keyboard-layouts=us ocs_live_run="echo 'Displaying the Disks'; echo '#############################################'; lsblk; echo 'Mounting the Images drive to /mnt'; echo '#############################################'; mount /dev/sdb2 /mnt; echo 'Formatting/Deleting the Interal Drive'; echo '#############################################'; sfdisk --delete /dev/sda; echo 'Copying the DD File to Internal Disk'; echo '#############################################'; dd if=/mnt/in.fr.20231228.dd of=/dev/sda bs=256M status=progress; echo 'Fixing the Backup Partiion Table'; echo '#############################################'; sgdisk -e /dev/sda; echo 'Resizing the C Drive to 235GiB'; echo '#############################################'; parted /dev/sda resizepart 3 235GiB; ntfsresize --force --force /dev/sda3" ocs_live_extra_param="" ocs_live_batch="no" vga=788 ip= net.ifnames=0  nosplash i915.blacklist=yes radeonhd.blacklist=yes nouveau.blacklist=yes vmwgfx.enable_fbdev=1
   $initrd_cmd /live/initrd.img
 }
-
 
