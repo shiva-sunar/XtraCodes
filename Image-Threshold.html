@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPEG to Black & White Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            max-width: 400px;
+            margin: 10px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #thresholdValue {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .adjust-button {
+            padding: 5px 10px;
+            margin: 0;
+            width: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JPEG to Black & White Converter</h1>
+        <input type="file" id="imageInput" accept="image/jpeg">
+        <br><br>
+        <label for="threshold">Threshold (0-255): </label>
+        <div class="slider-container">
+            <button class="adjust-button" onclick="adjustThreshold(-1)">-</button>
+            <input type="range" id="threshold" min="0" max="255" value="128">
+            <button class="adjust-button" onclick="adjustThreshold(1)">+</button>
+            <span id="thresholdValue">128</span>
+            <label style="margin-left: 20px;">
+                <input type="checkbox" id="useOriginalColor" onchange="convertImage()">
+                Use Original Color Below Threshold
+            </label>
+        </div>
+        <br><br>
+        <button onclick="downloadImage()">Download Black & White Image</button>
+        <div class="image-container">
+            <div class="image-box">
+                <h3>Original Image:</h3>
+                <canvas id="originalCanvas"></canvas>
+            </div>
+            <div class="image-box">
+                <h3>Black & White Image:</h3>
+                <canvas id="bwCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const originalCanvas = document.getElementById('originalCanvas');
+        const bwCanvas = document.getElementById('bwCanvas');
+        const thresholdSlider = document.getElementById('threshold');
+        const thresholdValue = document.getElementById('thresholdValue');
+        const useOriginalColorCheckbox = document.getElementById('useOriginalColor');
+        
+        let originalCtx = originalCanvas.getContext('2d');
+        let bwCtx = bwCanvas.getContext('2d');
+        let originalImageData = null;
+
+        // Load and display original image
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    originalCanvas.width = img.width;
+                    originalCanvas.height = img.height;
+                    bwCanvas.width = img.width;
+                    bwCanvas.height = img.height;
+                    originalCtx.drawImage(img, 0, 0);
+                    // Store original image data for conversion
+                    originalImageData = originalCtx.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
+                    // Initial conversion with default threshold
+                    convertImage();
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        // Update threshold value display
+        thresholdSlider.addEventListener('input', function() {
+            thresholdValue.textContent = thresholdSlider.value;
+        });
+
+        // Convert image when slider is released
+        thresholdSlider.addEventListener('change', function() {
+            if (originalImageData) {
+                convertImage();
+            }
+        });
+
+        function adjustThreshold(amount) {
+            let currentValue = parseInt(thresholdSlider.value);
+            let newValue = currentValue + amount;
+            
+            // Keep value within bounds (0-255)
+            newValue = Math.max(0, Math.min(255, newValue));
+            
+            thresholdSlider.value = newValue;
+            thresholdValue.textContent = newValue;
+            
+            if (originalImageData) {
+                convertImage();
+            }
+        }
+
+        function convertImage() {
+            if (!originalImageData) return;
+
+            const threshold = parseInt(thresholdSlider.value);
+            const useOriginal = useOriginalColorCheckbox.checked;
+            // Create a copy of original image data to modify
+            const imageData = new ImageData(
+                new Uint8ClampedArray(originalImageData.data),
+                originalImageData.width,
+                originalImageData.height
+            );
+            const data = imageData.data;
+            const originalData = originalImageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                // Calculate brightness using luminosity method
+                const brightness = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+                if (brightness < threshold) {
+                    if (useOriginal) {
+                        // Keep original colors when below threshold
+                        data[i] = originalData[i];     // Red
+                        data[i + 1] = originalData[i + 1]; // Green
+                        data[i + 2] = originalData[i + 2]; // Blue
+                    } else {
+                        // Make black when below threshold
+                        data[i] = 0;     // Red
+                        data[i + 1] = 0; // Green
+                        data[i + 2] = 0; // Blue
+                    }
+                } else {
+                    // Make white when above or equal to threshold
+                    data[i] = 255;     // Red
+                    data[i + 1] = 255; // Green
+                    data[i + 2] = 255; // Blue
+                }
+                // Alpha (data[i + 3]) remains unchanged
+            }
+
+            bwCtx.putImageData(imageData, 0, 0);
+        }
+
+        function downloadImage() {
+            if (!bwCanvas.width || !bwCanvas.height) {
+                alert('Please upload an image first!');
+                return;
+            }
+
+            // Create a temporary link element
+            const link = document.createElement('a');
+            link.download = 'black_and_white_image.jpg';
+            link.href = bwCanvas.toDataURL('image/jpeg', 1.0); // 1.0 is quality (max)
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
