@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paste Image</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            margin: 0;
+            background-color: #f0f2f5; /* Light grey background */
+            overflow: hidden; /* Prevent scrollbars if image slightly overflows */
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        #pasteArea {
+            width: 90%;
+            max-width: 700px;
+            min-height: 200px;
+            border: 3px dashed #a0a0a0; /* Darker dashed border */
+            border-radius: 15px; /* More rounded corners */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #666;
+            font-size: 1.3em;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1); /* Subtle shadow */
+            transition: all 0.3s ease-in-out; /* Smooth transition for hover/focus */
+            cursor: pointer;
+        }
+
+        #pasteArea:hover {
+            border-color: #666;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        #pasteArea p {
+            margin: 10px;
+            padding: 0 20px;
+        }
+
+        #imageContainer {
+            width: 100vw; /* Occupy full viewport width */
+            height: 100vh; /* Occupy full viewport height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Hide parts of image if it's too big */
+            position: absolute; /* Position absolutely to fill screen */
+            top: 0;
+            left: 0;
+            background-color: #f0f2f5; /* Match body background */
+            z-index: 10; /* Ensure it's above other elements when visible */
+        }
+
+        #imageDisplay {
+            max-width: 98vw; /* Max width almost full viewport width */
+            max-height: 98vh; /* Max height almost full viewport height */
+            object-fit: contain; /* Ensure the entire image is visible, scaling down if necessary */
+            border: none; /* No border for the displayed image */
+            border-radius: 8px; /* Rounded corners for the image */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* Stronger shadow for the image */
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <h1 id="mainTitle">Paste an Image Here</h1>
+    <div id="pasteArea" tabindex="0">
+        <p>Click here and press <strong>Ctrl+V</strong> (Windows/Linux) or <strong>Cmd+V</strong> (Mac) to paste an image.</p>
+        <p>Ensure you have an image copied to your clipboard.</p>
+    </div>
+    <div id="imageContainer">
+        <img id="imageDisplay" src="" alt="Pasted Image">
+    </div>
+
+    <script>
+        const mainTitle = document.getElementById('mainTitle');
+        const pasteArea = document.getElementById('pasteArea');
+        const imageDisplay = document.getElementById('imageDisplay');
+        const imageContainer = document.getElementById('imageContainer');
+
+        // Function to handle image pasting
+        const handleImagePaste = (event) => {
+            event.preventDefault(); // Prevent default paste behavior (e.g., pasting text)
+
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            let imageFound = false;
+
+            // Iterate through clipboard items to find an image
+            for (let i = 0; i < items.length; i++) {
+                // Check if the item is an image type
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile(); // Get the image data as a Blob
+                    const reader = new FileReader(); // Create a FileReader to read the Blob
+
+                    // When the FileReader finishes loading the image
+                    reader.onload = (e) => {
+                        imageDisplay.src = e.target.result; // Set the image source to the Data URL
+                        imageDisplay.style.display = 'block'; // Make the image visible
+                        imageContainer.style.display = 'flex'; // Ensure container is flex to center image
+
+                        mainTitle.style.display = 'none'; // Hide the main title
+                        pasteArea.style.display = 'none'; // Hide the paste area
+
+                        // Adjust body to remove any remaining space if needed (optional)
+                        document.body.style.justifyContent = 'center';
+                        document.body.style.alignItems = 'center';
+                    };
+
+                    reader.readAsDataURL(blob); // Read the image Blob as a Data URL
+                    imageFound = true;
+                    break; // Stop after finding the first image
+                }
+            }
+
+            // If no image was found in the clipboard
+            if (!imageFound) {
+                // Use a custom message box instead of alert()
+                const messageBox = document.createElement('div');
+                messageBox.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background-color: #fff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    text-align: center;
+                    font-size: 1.1em;
+                    color: #333;
+                `;
+                messageBox.innerHTML = `
+                    <p>No image found in clipboard.</p>
+                    <p>Please make sure you have copied an image.</p>
+                    <button style="
+                        margin-top: 15px;
+                        padding: 10px 20px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 1em;
+                    ">OK</button>
+                `;
+                document.body.appendChild(messageBox);
+
+                messageBox.querySelector('button').addEventListener('click', () => {
+                    document.body.removeChild(messageBox);
+                });
+            }
+        };
+
+        // Event listener for pasting content on the entire document body
+        document.body.addEventListener('paste', handleImagePaste);
+
+        // Focus on the paste area automatically when the page loads
+        // This allows users to paste immediately without clicking the div first.
+        window.onload = () => {
+            pasteArea.focus();
+            // Initially hide the image container until an image is pasted
+            imageContainer.style.display = 'none';
+        };
+    </script>
+</body>
+</html>
