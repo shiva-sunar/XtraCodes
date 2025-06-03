@@ -54,6 +54,7 @@
 <body>
     <div class="container">
         <h1>JPEG to Black & White Converter</h1>
+        <p>You can upload an image using the button below or by pasting an image from your clipboard (Ctrl+V or Cmd+V).</p>
         <input type="file" id="imageInput" accept="image/jpeg">
         <br><br>
         <label for="threshold">Threshold (0-255): </label>
@@ -93,11 +94,9 @@
         let bwCtx = bwCanvas.getContext('2d');
         let originalImageData = null;
 
-        // Load and display original image
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        // Shared function to process an image file (from input or clipboard)
+        function processImageFile(file) {
             const reader = new FileReader();
-
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
@@ -108,12 +107,44 @@
                     originalCtx.drawImage(img, 0, 0);
                     // Store original image data for conversion
                     originalImageData = originalCtx.getImageData(0, 0, originalCanvas.width, originalCanvas.height);
-                    // Initial conversion with default threshold
+                    // Initial conversion with default threshold or current slider value
                     convertImage();
                 }
                 img.src = event.target.result;
             }
             reader.readAsDataURL(file);
+        }
+
+        // Load and display original image from file input
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processImageFile(file);
+            }
+        });
+
+        // Add event listener for pasting image from clipboard
+        document.addEventListener('paste', function(e) {
+            let imageFile = null;
+            // Check for clipboard data and items
+            if (e.clipboardData && e.clipboardData.items) {
+                const items = e.clipboardData.items;
+                for (let i = 0; i < items.length; i++) {
+                    // Check if the item is a file and is an image
+                    if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
+                        imageFile = items[i].getAsFile();
+                        break; // Found an image, no need to check further
+                    }
+                }
+            }
+
+            if (imageFile) {
+                e.preventDefault(); // Prevent the browser's default paste action (e.g., pasting into an input field)
+                processImageFile(imageFile);
+            }
+            // else {
+            //    console.log("Pasted content was not a recognized image format or no file data found.");
+            // }
         });
 
         // Update threshold value display
@@ -121,7 +152,7 @@
             thresholdValue.textContent = thresholdSlider.value;
         });
 
-        // Convert image when slider is released
+        // Convert image when slider is released (or value changed programmatically via buttons)
         thresholdSlider.addEventListener('change', function() {
             if (originalImageData) {
                 convertImage();
@@ -155,17 +186,21 @@
                 originalImageData.height
             );
             const data = imageData.data;
-            const originalData = originalImageData.data;
+            const originalData = originalImageData.data; // Keep a reference to the true original colors
 
             for (let i = 0; i < data.length; i += 4) {
-                // Calculate brightness using luminosity method
-                const brightness = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+                // Calculate brightness using luminosity method from the (potentially already processed) displayed original
+                const r = originalImageData.data[i];
+                const g = originalImageData.data[i+1];
+                const b = originalImageData.data[i+2];
+                const brightness = (0.299 * r + 0.587 * g + 0.114 * b);
+
                 if (brightness < threshold) {
                     if (useOriginal) {
                         // Keep original colors when below threshold
-                        data[i] = originalData[i];     // Red
-                        data[i + 1] = originalData[i + 1]; // Green
-                        data[i + 2] = originalData[i + 2]; // Blue
+                        data[i] = r;     // Red
+                        data[i + 1] = g; // Green
+                        data[i + 2] = b; // Blue
                     } else {
                         // Make black when below threshold
                         data[i] = 0;     // Red
@@ -178,15 +213,16 @@
                     data[i + 1] = 255; // Green
                     data[i + 2] = 255; // Blue
                 }
-                // Alpha (data[i + 3]) remains unchanged
+                // Alpha (data[i + 3]) remains unchanged (from originalImageData)
+                data[i+3] = originalImageData.data[i+3];
             }
 
             bwCtx.putImageData(imageData, 0, 0);
         }
 
         function downloadImage() {
-            if (!bwCanvas.width || !bwCanvas.height) {
-                alert('Please upload an image first!');
+            if (!bwCanvas.width || !bwCanvas.height || !originalImageData) { // check originalImageData too
+                alert('Please upload or paste an image first!');
                 return;
             }
 
