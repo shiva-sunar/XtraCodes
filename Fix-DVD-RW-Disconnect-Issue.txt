@@ -1,0 +1,35 @@
+# To fix semaphore timeout issue
+### From here find your USB Controller (Connect-> Status=OK, Disconnect -> Status Unknown)
+### Note InstanceID
+PS C:\WINDOWS\system32> Get-PnpDevice -Class 'USB' | Select-Object Status, FriendlyName, InstanceId, Driver
+
+Status  FriendlyName                                                   InstanceId                                                        Driver
+------  ------------                                                   ----------                                                        ------
+************* deleted to save space *************
+OK      Dispositif de stockage de masse USB                            USB\VID_152D&PID_2339\00A000000026
+
+# Remove the device using this, and it will fix the semaphore timeout issue.
+pnputil /remove-device 'USB\VID_152D&PID_2339\00A000000026'
+# Reconnect the device
+
+
+### Extra steps if you want to change name of device.
+
+Find the value for 
+devmgmt.msc >> Controlleur de bus USB >> Dispositif de stockage de masse USB >> Properties >> Details >> Parent => verify if its the device, i.e., if Parent==InstanceID
+
+
+#To Rename the device to friendly name if you want.
+devmgmt.msc >> Controlleur de bus USB >> Dispositif de stockage de masse USB >> Properties >> Details >> Cle Pilote/ Driver key (NOTE IT, ) {36fc9e60-c465-11cf-8056-444553540000}\0010
+regedit.exe >> Ordinateur\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum >> Search (Driver Key, i.e., {36fc9e60-c465-11cf-8056-444553540000}\0010) >> Modify or Add New String Named "FriendlyName" >> "USB Controller for Shiva DVD"
+
+
+devmgmt.msc >> Lectueurs de DVD/CD-ROM >> PLDS DVD-RW >> Properties >> Details >> Parent = USB\VID_152D... (for my Lenovo DVD)
+devmgmt.msc >> Lectueurs de DVD/CD-ROM >> PLDS DVD-RW >> Properties >> Details >> Cle Pilote/ Driver key  = {4d36e965-e325-11ce-bfc1-08002be10318}\0000 (its can be different each device installation)
+ (for my Lenovo DVD)
+
+regedit.exe >> Ordinateur\HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Enum >> Search (Driver Key, i.e., {4d36e965-e325-11ce-bfc1-08002be10318}\0000) >> Modify or Add New String Named "FriendlyName" >> "Shiva DVD Custom Name"
+
+pnputil /remove-device 'USB\VID_152D&PID_2339\00A000000026'
+
+New-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Enum\USB\VID_152D&PID_2339\00A000000026" -Name "FriendlyName" -Value "Shiva's Lenovo DVD RW" -PropertyType String -Force
