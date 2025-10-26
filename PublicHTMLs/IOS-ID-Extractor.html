@@ -1,1 +1,291 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Extractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .field-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        #input {
+            min-height: 120px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .output-wrapper {
+            position: relative;
+        }
+        
+        .output-area {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            resize: vertical;
+        }
+        
+        .copy-btn {
+            width: auto;
+            margin-top: 10px;
+            padding: 8px 20px;
+            font-size: 14px;
+            background: #28a745;
+        }
+        
+        .copy-btn:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .copy-btn.copied {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ID Extractor</h1>
+        
+        <div class="field-group">
+            <label for="input">Input Text:</label>
+            <textarea id="input" placeholder="Enter text containing 5-digit IDs..."></textarea>
+        </div>
+        
+        <button onclick="extractIDs()">Extract IDs</button>
+        
+        <div class="field-group" style="margin-top: 25px;">
+            <label>Extracted IDs:</label>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(0)">Tab0 (Basic)</button>
+                <button class="tab" onclick="switchTab(1)">Tab1 (StringList)</button>
+                <button class="tab" onclick="switchTab(2)">Tab2 (Grep)</button>
+                <button class="tab" onclick="switchTab(3)">Tab3 (PHP)</button>
+            </div>
+            
+            <div class="output-wrapper">
+                <div id="tab0" class="tab-content active">
+                    <textarea class="output-area" id="output0" readonly placeholder="IDs will appear here..."></textarea>
+                </div>
+                <div id="tab1" class="tab-content">
+                    <textarea class="output-area" id="output1" readonly placeholder="StringList format..."></textarea>
+                </div>
+                <div id="tab2" class="tab-content">
+                    <textarea class="output-area" id="output2" readonly placeholder="Grep format..."></textarea>
+                </div>
+                <div id="tab3" class="tab-content">
+                    <textarea class="output-area" id="output3" readonly placeholder="PHP format..."></textarea>
+                </div>
+                
+                <button class="copy-btn" onclick="copyOutput()">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTab = 0;
+        let extractedIDs = [];
+        
+        function extractIDs() {
+            const input = document.getElementById('input').value;
+            
+            // Regular expression to match exactly 5-digit numbers
+            const idPattern = /\b\d{5}\b/g;
+            
+            // Extract all matches
+            extractedIDs = input.match(idPattern) || [];
+            
+            // Update all output formats
+            updateOutputs();
+        }
+        
+        function updateOutputs() {
+            const output0 = document.getElementById('output0');
+            const output1 = document.getElementById('output1');
+            const output2 = document.getElementById('output2');
+            const output3 = document.getElementById('output3');
+            
+            if (extractedIDs.length > 0) {
+                // Tab0: Basic format (comma-separated)
+                output0.value = extractedIDs.join(', ');
+                
+                // Tab1: StringList format ("12345","23456")
+                output1.value = extractedIDs.map(id => `"${id}"`).join(',');
+                
+                // Tab2: Grep format (12345\|23456)
+                output2.value = extractedIDs.join('\\|');
+                
+                // Tab3: PHP format (12345,23456)
+                output3.value = extractedIDs.join(',');
+            } else {
+                output0.value = 'No 5-digit IDs found';
+                output1.value = 'No 5-digit IDs found';
+                output2.value = 'No 5-digit IDs found';
+                output3.value = 'No 5-digit IDs found';
+            }
+        }
+        
+        function switchTab(tabIndex) {
+            currentTab = tabIndex;
+            
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach((tab, index) => {
+                if (index === tabIndex) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Update tab content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach((content, index) => {
+                if (index === tabIndex) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+        
+        function copyOutput() {
+            const output = document.getElementById(`output${currentTab}`);
+            const copyBtn = document.querySelector('.copy-btn');
+            
+            // Copy to clipboard
+            output.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = 'Copied!';
+            copyBtn.classList.add('copied');
+            
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+        
+        // Optional: Extract IDs automatically as user types
+        document.getElementById('input').addEventListener('input', extractIDs);
+    </script>
+</body>
+</html>
