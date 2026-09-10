@@ -1,6 +1,6 @@
 # VERSION: 1.0
 # AUTHORS: OpenAI
-
+# python .\torrent9.py "reacher" # for command line search
 import argparse
 import re
 from datetime import datetime
