@@ -269,6 +269,47 @@
       40%, 80% { transform: translateX(8px); }
     }
 
+    /* Next Question Review Button (Only shown on wrong answer) */
+    .next-btn-wrap {
+      display: none;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    .next-btn-wrap.show {
+      display: block;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .next-action-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #ffffff;
+      border: none;
+      border-bottom: 5px solid #4338ca;
+      padding: 15px 16px;
+      border-radius: 18px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+      transition: all 0.12s ease;
+    }
+
+    .next-action-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 3px;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
     /* Footer Toolbar */
     .footer-tools {
       display: flex;
@@ -467,6 +508,13 @@
         <button class="option-btn" data-index="3">--:--</button>
       </div>
 
+      <!-- Next Button (Only shown when wrong, so sister has plenty of time to review) -->
+      <div class="next-btn-wrap" id="next-btn-wrap">
+        <button class="next-action-btn" id="next-action-btn">
+          <span>Next Question</span> ➔
+        </button>
+      </div>
+
       <!-- Footer Toolbar -->
       <div class="footer-tools">
         <button class="tool-btn" id="sound-btn" title="Toggle Sound">
@@ -527,6 +575,8 @@
     const feedbackMain = document.getElementById('feedback-main');
     const feedbackSubtip = document.getElementById('feedback-subtip');
     const optionButtons = document.querySelectorAll('.option-btn');
+    const nextBtnWrap = document.getElementById('next-btn-wrap');
+    const nextActionBtn = document.getElementById('next-action-btn');
     const soundBtn = document.getElementById('sound-btn');
     const minuteModeBtn = document.getElementById('minute-mode-btn');
     const restartBtn = document.getElementById('restart-btn');
@@ -822,6 +872,7 @@
 
       gameView.style.display = 'block';
       endScreen.classList.remove('active');
+      nextBtnWrap.classList.remove('show');
 
       updateScoreDisplay();
       renderQuestion();
@@ -840,6 +891,7 @@
       }
 
       isAnsweringBlocked = false;
+      nextBtnWrap.classList.remove('show');
       const q = questionsDeck[currentIndex];
 
       // Update analogue clock hands
@@ -874,6 +926,11 @@
 
       isAnsweringBlocked = true;
 
+      // Disable buttons to prevent multiple clicks
+      optionButtons.forEach(b => {
+        b.disabled = true;
+      });
+
       if (isCorrect) {
         score++;
         btn.classList.add('correct-choice');
@@ -891,6 +948,13 @@
         playCorrectSound();
         triggerHaptic('success');
         launchConfetti(25);
+
+        // ✅ When correct: proceed automatically without pressing next
+        setTimeout(() => {
+          currentIndex++;
+          updateScoreDisplay();
+          renderQuestion();
+        }, 1200);
       } else {
         btn.classList.add('wrong-choice');
         feedbackMain.textContent = `Oops! The time is ${correctStr}! ⏰`;
@@ -922,15 +986,10 @@
 
         playWrongSound();
         triggerHaptic('wrong');
-      }
 
-      // Allow slightly longer delay on wrong answer so she can read the educational tip
-      const delay = isCorrect ? 1300 : 2200;
-      setTimeout(() => {
-        currentIndex++;
-        updateScoreDisplay();
-        renderQuestion();
-      }, delay);
+        // 🛑 When wrong: show Next button so she can review the clock at her own pace!
+        nextBtnWrap.classList.add('show');
+      }
     }
 
     function showEndCelebration() {
@@ -969,6 +1028,14 @@
     // =========================================================================
     optionButtons.forEach(btn => {
       btn.addEventListener('click', handleOptionSelect);
+    });
+
+    nextActionBtn.addEventListener('click', () => {
+      initAudio();
+      nextBtnWrap.classList.remove('show');
+      currentIndex++;
+      updateScoreDisplay();
+      renderQuestion();
     });
 
     restartBtn.addEventListener('click', () => {
