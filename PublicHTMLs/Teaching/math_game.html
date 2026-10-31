@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Math Quest! ➕ ➖ Addition & Subtraction</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --bg-gradient: linear-gradient(135deg, #ddd6fe 0%, #fed7aa 50%, #fbcfe8 100%);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --correct: #16a34a;
+      --correct-bg: #dcfce7;
+      --wrong: #dc2626;
+      --wrong-bg: #fee2e2;
+      --text: #1e293b;
+      --radius: 26px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg-gradient);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 45px rgba(79, 70, 229, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 4px solid #fff;
+      position: relative;
+    }
+
+    /* Mode Selector Bar at Top */
+    .mode-pills {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      margin-bottom: 12px;
+      justify-content: center;
+    }
+
+    .mode-tab {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      border: 2px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #64748b;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .mode-tab.active {
+      background: #4f46e5;
+      color: #ffffff;
+      border-color: #3730a3;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+    }
+
+    /* Header Bar */
+    .header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .badge {
+      background: #eef2ff;
+      border: 2px solid #c7d2fe;
+      color: var(--primary-dark);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .digit-badge {
+      background: #fdf2f8;
+      border-color: #fbcfe8;
+      color: #be185d;
+      cursor: pointer;
+    }
+
+    /* Progress Bar */
+    .progress-wrap {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #ec4899);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    /* Question Stage */
+    .question-card {
+      width: 100%;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 20px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 2px dashed #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    .math-expression {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #1e1b4b;
+      letter-spacing: 1px;
+      line-height: 1.2;
+    }
+
+    .math-op {
+      color: #ec4899;
+      font-size: 2.7rem;
+    }
+
+    /* Number Input Screen */
+    .input-screen-wrap {
+      margin-top: 10px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .input-box-display {
+      min-width: 130px;
+      height: 58px;
+      background: #ffffff;
+      border: 3.5px solid #6366f1;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #312e81;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
+      padding: 0 16px;
+      letter-spacing: 2px;
+      position: relative;
+    }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 3px;
+      height: 32px;
+      background: #6366f1;
+      margin-left: 4px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Explanation & Feedback Box */
+    .explanation-card {
+      width: 100%;
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: none;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .explanation-card.show {
+      display: block !important;
+    }
+
+    .explanation-card.correct {
+      background: var(--correct-bg);
+      border: 3px solid var(--correct);
+      color: #166534;
+      text-align: center;
+    }
+
+    .explanation-card.wrong {
+      background: #fff5f5;
+      border: 3px solid #ef4444;
+      color: #991b1b;
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.15);
+    }
+
+    /* Correction Highlight Box */
+    .correction-banner {
+      background: #ffffff;
+      border: 2.5px dashed #f87171;
+      border-radius: 14px;
+      padding: 12px 10px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .correction-pill-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge-wrong-ans {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 4px 12px;
+      border-radius: 999px;
+      text-decoration: line-through;
+      font-size: 0.95rem;
+    }
+
+    .badge-correct-ans {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 1.15rem;
+      border: 2px solid #86efac;
+    }
+
+    .correction-big-equation {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #15803d;
+      letter-spacing: 1px;
+    }
+
+    .explanation-title {
+      font-size: 1.2rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .explanation-steps {
+      font-size: 0.96rem;
+      font-weight: 700;
+      line-height: 1.5;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: #334155;
+    }
+
+    /* Next Question Button (shown on wrong answer until pressed) */
+    .next-btn-wrap {
+      display: none;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .next-btn-wrap.show {
+      display: block;
+      animation: popIn 0.3s ease;
+    }
+
+    .next-action-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #ffffff;
+      border: none;
+      border-bottom: 5px solid #3730a3;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+      transition: all 0.1s ease;
+    }
+
+    .next-action-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 3px;
+    }
+
+    /* Kid-Friendly Touch Keypad */
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      width: 100%;
+    }
+
+    .key-btn {
+      background: #ffffff;
+      border: 2px solid #e0e7ff;
+      border-bottom: 5px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 14px 0;
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: #1e1b4b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+    }
+
+    .key-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      border-bottom-width: 3px;
+      background: #f5f3ff;
+    }
+
+    .key-btn.action-del {
+      background: #fef2f2;
+      border-color: #fecaca;
+      border-bottom-color: #fca5a5;
+      color: #dc2626;
+      font-size: 1.4rem;
+    }
+
+    .key-btn.action-enter {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      border-bottom-color: #86efac;
+      color: #16a34a;
+      font-size: 1.35rem;
+    }
+
+    .key-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Footer Toolbar */
+    .footer-tools {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+    }
+
+    .tool-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+
+    .tool-btn:hover {
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    /* End Screen Celebration */
+    .end-screen {
+      display: none;
+      text-align: center;
+      padding: 24px 8px;
+    }
+
+    .end-screen.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .trophy-icon {
+      font-size: 4.5rem;
+      margin-bottom: 12px;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-12px); }
+    }
+
+    .celebrate-title {
+      font-size: 2.1rem;
+      font-weight: 900;
+      color: #3730a3;
+      margin-bottom: 8px;
+    }
+
+    .celebrate-subtitle {
+      font-size: 1.05rem;
+      color: #475569;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .final-score-pill {
+      display: inline-block;
+      background: #fef3c7;
+      border: 3px solid #f59e0b;
+      color: #b45309;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-size: 1.6rem;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+
+    .restart-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+      color: #ffffff;
+      border: none;
+      border-bottom: 6px solid #3730a3;
+      padding: 16px;
+      border-radius: 18px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+      transition: all 0.15s ease;
+    }
+
+    .restart-btn:active {
+      transform: translateY(3px);
+      border-bottom-width: 3px;
+    }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Confetti Effect -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+
+    <!-- Active Game Screen -->
+    <div id="game-view" style="width: 100%;">
+
+      <!-- Mode Selector (Addition / Subtraction / Both) -->
+      <div class="mode-pills">
+        <button class="mode-tab active" data-mode="add">➕ Addition</button>
+        <button class="mode-tab" data-mode="sub">➖ Subtraction</button>
+        <button class="mode-tab" data-mode="mixed">🔀 Mixed (+ / -)</button>
+      </div>
+
+      <!-- Header & Score Bar -->
+      <div class="header">
+        <div class="badge digit-badge" id="digit-toggle-btn" title="Tap to switch between 1-digit and 2-digits">
+          <span>🔢 1 & 2 Digits</span>
+        </div>
+        <div class="badge" id="score-badge">
+          <span>⭐ 0 / 10</span>
+        </div>
+      </div>
+
+      <!-- Question Progress -->
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <!-- Central Math Question Display -->
+      <div class="question-card">
+        <div class="math-expression">
+          <span id="num-a">24</span>
+          <span class="math-op" id="math-op">+</span>
+          <span id="num-b">15</span>
+          <span>=</span>
+        </div>
+
+        <!-- Input Box Display with Blinking Cursor -->
+        <div class="input-screen-wrap">
+          <div class="input-box-display" id="input-box-display">
+            <span id="typed-number"></span>
+            <span class="cursor-blink" id="cursor-blink"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step-by-Step Explanation Banner (Stops here on wrong answer!) -->
+      <div class="explanation-card" id="explanation-card">
+        <div class="explanation-title" id="explanation-title">
+          <span>💡 Explanation</span>
+        </div>
+        <div class="explanation-steps" id="explanation-steps">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Next Question Button (Appears on wrong answer to review until pressed) -->
+      <div class="next-btn-wrap" id="next-btn-wrap">
+        <button class="next-action-btn" id="next-action-btn">
+          <span>Next Question</span> ➔
+        </button>
+      </div>
+
+      <!-- Mobile-Friendly Numeric Touch Keypad -->
+      <div class="keypad-grid" id="keypad-grid">
+        <button class="key-btn" data-key="1">1</button>
+        <button class="key-btn" data-key="2">2</button>
+        <button class="key-btn" data-key="3">3</button>
+
+        <button class="key-btn" data-key="4">4</button>
+        <button class="key-btn" data-key="5">5</button>
+        <button class="key-btn" data-key="6">6</button>
+
+        <button class="key-btn" data-key="7">7</button>
+        <button class="key-btn" data-key="8">8</button>
+        <button class="key-btn" data-key="9">9</button>
+
+        <button class="key-btn action-del" data-key="del" title="Delete">⌫</button>
+        <button class="key-btn" data-key="0">0</button>
+        <button class="key-btn action-enter" data-key="enter" title="Check Answer">✓ Enter</button>
+      </div>
+
+      <!-- Footer Utilities -->
+      <div class="footer-tools">
+        <button class="tool-btn" id="sound-btn">
+          🔊 Sound On
+        </button>
+        <button class="tool-btn" id="clear-btn">
+          🗑️ Clear
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Celebration Screen (Shown at round completion) -->
+    <div class="end-screen" id="end-screen">
+      <div class="trophy-icon" id="final-trophy">🏆</div>
+      <h2 class="celebrate-title" id="celebrate-title">Math Champion!</h2>
+      <p class="celebrate-subtitle" id="celebrate-subtitle">You finished the math challenge!</p>
+      
+      <div>
+        <div class="final-score-pill" id="final-score">10 / 10</div>
+      </div>
+
+      <button class="restart-btn" id="restart-btn">
+        <span>Play Again</span> 🔁
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // ⚙️ CONFIGURATION & STATE
+    // =========================================================================
+    let currentMode = 'add';      // 'add', 'sub', or 'mixed'
+    let digitSetting = 'mixed';   // '1-digit', '2-digit', or 'mixed'
+    const QUESTIONS_PER_ROUND = 10;
+    const AUTO_ADVANCE_DELAY = 1200;
+
+    let questionDeck = [];
+    let currentIndex = 0;
+    let score = 0;
+    let typedValue = '';
+    let isAnsweringBlocked = false;
+    let soundEnabled = true;
+
+    // Elements
+    const gameView = document.getElementById('game-view');
+    const endScreen = document.getElementById('end-screen');
+    const scoreBadge = document.getElementById('score-badge');
+    const progressBar = document.getElementById('progress-bar');
+    const digitToggleBtn = document.getElementById('digit-toggle-btn');
+    const numAElem = document.getElementById('num-a');
+    const numBElem = document.getElementById('num-b');
+    const mathOpElem = document.getElementById('math-op');
+    const typedNumberElem = document.getElementById('typed-number');
+    const inputBoxDisplay = document.getElementById('input-box-display');
+    const explanationCard = document.getElementById('explanation-card');
+    const explanationTitle = document.getElementById('explanation-title');
+    const explanationSteps = document.getElementById('explanation-steps');
+    const nextBtnWrap = document.getElementById('next-btn-wrap');
+    const nextActionBtn = document.getElementById('next-action-btn');
+    const keypadButtons = document.querySelectorAll('.key-btn');
+    const modeTabs = document.querySelectorAll('.mode-tab');
+    const soundBtn = document.getElementById('sound-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // Confetti canvas setup
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // =========================================================================
+    // 🔊 AUDIO SYNTHESIS
+    // =========================================================================
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, duration, type = 'sine', gainVal = 0.15) {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playCorrectSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(523.25, 0.12, 'triangle', 0.2); // C5
+      setTimeout(() => playTone(659.25, 0.12, 'triangle', 0.2), 100); // E5
+      setTimeout(() => playTone(783.99, 0.3, 'triangle', 0.25), 200); // G5
+    }
+
+    function playWrongSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(349.23, 0.2, 'sawtooth', 0.12);
+      setTimeout(() => playTone(277.18, 0.3, 'sawtooth', 0.12), 140);
+    }
+
+    function playKeypadTap() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(700, 0.04, 'sine', 0.06);
+    }
+
+    function playWinSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => playTone(freq, 0.25, 'triangle', 0.25), idx * 110);
+      });
+    }
+
+    function triggerHaptic(type = 'tap') {
+      if ('vibrate' in navigator) {
+        try {
+          if (type === 'tap') navigator.vibrate(10);
+          else if (type === 'success') navigator.vibrate([40, 30, 60]);
+          else navigator.vibrate([100, 50, 100]);
+        } catch (e) {}
+      }
+    }
+
+    // =========================================================================
+    // 🎊 CONFETTI SYSTEM
+    // =========================================================================
+    function launchConfetti(count = 35) {
+      const colors = ['#6366f1', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+      for (let i = 0; i < count; i++) {
+        confettiParticles.push({
+          x: canvas.width / 2 + (Math.random() * 200 - 100),
+          y: canvas.height * 0.45,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 25 + 10,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.floor(Math.random() * 10) - 10,
+          tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
+          tiltAngle: 0,
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -10 - 4
+        });
+      }
+    }
+
+    function updateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = confettiParticles.length - 1; i >= 0; i--) {
+        const p = confettiParticles[i];
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.y += (Math.cos(p.d) + 3 + p.r / 2) / 1.5;
+        p.x += Math.sin(p.d);
+        p.tilt = Math.sin(p.tiltAngle - (i / 3)) * 15;
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.25;
+        p.vx *= 0.98;
+
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + (p.r / 2), p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + (p.r / 2));
+        ctx.stroke();
+
+        if (p.y > canvas.height + 20) {
+          confettiParticles.splice(i, 1);
+        }
+      }
+      requestAnimationFrame(updateConfetti);
+    }
+    requestAnimationFrame(updateConfetti);
+
+    // =========================================================================
+    // 🧠 QUESTION GENERATION (1 & 2 DIGIT ADDITION / SUBTRACTION)
+    // =========================================================================
+    function getRandomNumber(type) {
+      if (type === '1-digit') {
+        return Math.floor(Math.random() * 9) + 1; // 1 to 9
+      } else if (type === '2-digit') {
+        return Math.floor(Math.random() * 90) + 10; // 10 to 99
+      } else {
+        // mixed: 50% chance 1-digit, 50% chance 2-digit
+        return Math.random() < 0.5 ? (Math.floor(Math.random() * 9) + 1) : (Math.floor(Math.random() * 90) + 10);
+      }
+    }
+
+    function generateDeck() {
+      const deck = [];
+      for (let i = 0; i < QUESTIONS_PER_ROUND; i++) {
+        // Choose operation
+        let op = '+';
+        if (currentMode === 'sub') {
+          op = '-';
+        } else if (currentMode === 'mixed') {
+          op = Math.random() < 0.5 ? '+' : '-';
+        }
+
+        let a = getRandomNumber(digitSetting);
+        let b = getRandomNumber(digitSetting);
+
+        // For subtraction, ensure a >= b so answer is always non-negative
+        if (op === '-') {
+          if (b > a) {
+            [a, b] = [b, a];
+          }
+        }
+
+        const answer = (op === '+') ? (a + b) : (a - b);
+        deck.push({ a, b, op, answer });
+      }
+      return deck;
+    }
+
+    // Generate clear, encouraging step-by-step math breakdown
+    function buildExplanationHTML(q, userAnswer) {
+      const { a, b, op, answer } = q;
+      let stepsHTML = '';
+
+      if (op === '+') {
+        const aTens = Math.floor(a / 10) * 10;
+        const aOnes = a % 10;
+        const bTens = Math.floor(b / 10) * 10;
+        const bOnes = b % 10;
+
+        if (a >= 10 || b >= 10) {
+          stepsHTML = `
+            <div>🔹 <strong>Step 1 (Tens):</strong> ${aTens} + ${bTens} = <strong>${aTens + bTens}</strong></div>
+            <div>🔹 <strong>Step 2 (Ones):</strong> ${aOnes} + ${bOnes} = <strong>${aOnes + bOnes}</strong></div>
+            <div>🔹 <strong>Step 3 (Total):</strong> ${aTens + bTens} + ${aOnes + bOnes} = <strong style="color:#15803d">${answer}</strong></div>
+          `;
+        } else {
+          stepsHTML = `
+            <div>Start at <strong>${a}</strong> and count up <strong>${b}</strong> more ➔ <strong style="color:#15803d">${answer}</strong></div>
+          `;
+        }
+      } else {
+        // Subtraction
+        const bTens = Math.floor(b / 10) * 10;
+        const bOnes = b % 10;
+
+        if (b >= 10) {
+          const step1 = a - bTens;
+          stepsHTML = `
+            <div>🔹 <strong>Step 1 (Tens):</strong> ${a} - ${bTens} = <strong>${step1}</strong></div>
+            <div>🔹 <strong>Step 2 (Ones):</strong> ${step1} - ${bOnes} = <strong style="color:#15803d">${answer}</strong></div>
+          `;
+        } else {
+          stepsHTML = `
+            <div>Think: What plus <strong>${b}</strong> equals <strong>${a}</strong>?</div>
+            <div><strong>${answer} + ${b} = ${a}</strong> ➔ so <strong>${a} - ${b} = <span style="color:#15803d">${answer}</span></strong>!</div>
+          `;
+        }
+      }
+
+      return `
+        <div class="correction-banner">
+          <div class="correction-pill-row">
+            <span class="badge-wrong-ans">Your Answer: ${userAnswer === '' ? 'empty' : userAnswer} ❌</span>
+            <span>➔</span>
+            <span class="badge-correct-ans">Correct: ${answer} ✅</span>
+          </div>
+          <div class="correction-big-equation">
+            ${a} ${op} ${b} = <span style="color:#15803d; text-decoration: underline;">${answer}</span>
+          </div>
+        </div>
+        <div style="font-weight: 800; color: #1e293b; margin-bottom: 6px;">📝 Step-by-Step Breakdown:</div>
+        ${stepsHTML}
+      `;
+    }
+
+    // =========================================================================
+    // 🎮 GAMEPLAY FLOW
+    // =========================================================================
+    function startGame() {
+      questionDeck = generateDeck();
+      currentIndex = 0;
+      score = 0;
+      typedValue = '';
+      isAnsweringBlocked = false;
+
+      gameView.style.display = 'block';
+      endScreen.classList.remove('active');
+      explanationCard.className = 'explanation-card';
+      explanationCard.style.display = 'none';
+      nextBtnWrap.classList.remove('show');
+
+      updateScoreDisplay();
+      renderQuestion();
+    }
+
+    function updateScoreDisplay() {
+      scoreBadge.innerHTML = `<span>⭐ ${score} / ${questionDeck.length}</span>`;
+      const progressPercent = (currentIndex / questionDeck.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    }
+
+    function renderQuestion() {
+      if (currentIndex >= questionDeck.length) {
+        showEndCelebration();
+        return;
+      }
+
+      isAnsweringBlocked = false;
+      typedValue = '';
+      updateInputDisplay();
+
+      const cursor = document.getElementById('cursor-blink');
+      if (cursor) cursor.style.display = 'inline-block';
+
+      // Reset panels
+      explanationCard.className = 'explanation-card';
+      explanationCard.style.display = 'none';
+      nextBtnWrap.classList.remove('show');
+      inputBoxDisplay.style.borderColor = '#6366f1';
+      inputBoxDisplay.style.backgroundColor = '#ffffff';
+
+      // Enable keypad
+      keypadButtons.forEach(btn => btn.disabled = false);
+
+      const q = questionDeck[currentIndex];
+      numAElem.textContent = q.a;
+      numBElem.textContent = q.b;
+      mathOpElem.textContent = q.op;
+    }
+
+    function updateInputDisplay() {
+      typedNumberElem.textContent = typedValue;
+    }
+
+    function handleNumberInput(digit) {
+      if (isAnsweringBlocked) return;
+      playKeypadTap();
+      triggerHaptic('tap');
+
+      // Max 3 digits answer (e.g., 99 + 99 = 198)
+      if (typedValue.length < 3) {
+        typedValue += digit;
+        updateInputDisplay();
+      }
+    }
+
+    function handleDelete() {
+      if (isAnsweringBlocked) return;
+      playKeypadTap();
+      triggerHaptic('tap');
+      if (typedValue.length > 0) {
+        typedValue = typedValue.slice(0, -1);
+        updateInputDisplay();
+      }
+    }
+
+    function handleClear() {
+      if (isAnsweringBlocked) return;
+      playKeypadTap();
+      typedValue = '';
+      updateInputDisplay();
+    }
+
+    function handleSubmitAnswer() {
+      if (isAnsweringBlocked) return;
+      initAudio();
+
+      if (typedValue === '') {
+        // Gentle reminder to enter something
+        inputBoxDisplay.style.borderColor = '#f59e0b';
+        setTimeout(() => {
+          if (!isAnsweringBlocked) inputBoxDisplay.style.borderColor = '#6366f1';
+        }, 500);
+        return;
+      }
+
+      const q = questionDeck[currentIndex];
+      const parsedVal = parseInt(typedValue, 10);
+      const isCorrect = (parsedVal === q.answer);
+
+      isAnsweringBlocked = true;
+      keypadButtons.forEach(btn => btn.disabled = true);
+
+      if (isCorrect) {
+        // ✅ CORRECT PATH:
+        score++;
+        playCorrectSound();
+        triggerHaptic('success');
+        launchConfetti(25);
+
+        inputBoxDisplay.style.borderColor = 'var(--correct)';
+        inputBoxDisplay.style.backgroundColor = 'var(--correct-bg)';
+
+        explanationTitle.innerHTML = '<span>🌟 Outstanding! That is correct!</span>';
+        explanationSteps.innerHTML = `<div style="font-size:1.3rem;text-align:center;font-weight:900;color:#15803d">${q.a} ${q.op} ${q.b} = ${q.answer} 🎉</div>`;
+        explanationCard.style.display = 'block';
+        explanationCard.className = 'explanation-card show correct';
+
+        // Auto-proceed to next question without pressing next!
+        setTimeout(() => {
+          currentIndex++;
+          updateScoreDisplay();
+          renderQuestion();
+        }, AUTO_ADVANCE_DELAY);
+      } else {
+        // 🛑 WRONG PATH:
+        playWrongSound();
+        triggerHaptic('wrong');
+
+        inputBoxDisplay.style.borderColor = 'var(--wrong)';
+        inputBoxDisplay.style.backgroundColor = 'var(--wrong-bg)';
+
+        // Show correction directly in the central input box too!
+        typedNumberElem.innerHTML = `<span style="text-decoration:line-through;color:#dc2626">${typedValue}</span> <span style="color:#16a34a;margin-left:8px;font-weight:900">➜ ${q.answer}</span>`;
+        const cursor = document.getElementById('cursor-blink');
+        if (cursor) cursor.style.display = 'none';
+
+        // Show correction banner & breakdown
+        explanationTitle.innerHTML = '<span>❌ Answer Correction:</span>';
+        explanationSteps.innerHTML = buildExplanationHTML(q, typedValue);
+        explanationCard.style.display = 'block';
+        explanationCard.className = 'explanation-card show wrong';
+
+        // Stop here! Display Next button so she can review the explanation at her own pace
+        nextBtnWrap.classList.add('show');
+      }
+    }
+
+    function showEndCelebration() {
+      progressBar.style.width = '100%';
+      gameView.style.display = 'none';
+      endScreen.classList.add('active');
+
+      const total = questionDeck.length;
+      document.getElementById('final-score').textContent = `${score} / ${total}`;
+
+      const title = document.getElementById('celebrate-title');
+      const subtitle = document.getElementById('celebrate-subtitle');
+      const trophy = document.getElementById('final-trophy');
+
+      if (score === total) {
+        trophy.textContent = '🏆';
+        title.textContent = 'Math Wizard!';
+        subtitle.textContent = `A perfect 10/10! You mastered every problem! 🚀`;
+        launchConfetti(70);
+      } else if (score >= total * 0.7) {
+        trophy.textContent = '⭐';
+        title.textContent = 'Awesome Job!';
+        subtitle.textContent = `High score! Keep up the brilliant practicing!`;
+        launchConfetti(45);
+      } else {
+        trophy.textContent = '🌱';
+        title.textContent = 'Great Effort!';
+        subtitle.textContent = `Every mistake helps your brain grow stronger. Try again for 10/10!`;
+      }
+
+      playWinSound();
+    }
+
+    // =========================================================================
+    // ⚙️ EVENT LISTENERS & CONTROLS
+    // =========================================================================
+    // On-screen keypad clicks
+    keypadButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const key = e.currentTarget.dataset.key;
+        if (key === 'del') {
+          handleDelete();
+        } else if (key === 'enter') {
+          handleSubmitAnswer();
+        } else {
+          handleNumberInput(key);
+        }
+      });
+    });
+
+    // Physical keyboard support for desktop
+    window.addEventListener('keydown', (e) => {
+      if (gameView.style.display === 'none') return;
+
+      if (e.key >= '0' && e.key <= '9') {
+        handleNumberInput(e.key);
+      } else if (e.key === 'Backspace') {
+        handleDelete();
+      } else if (e.key === 'Enter') {
+        if (nextBtnWrap.classList.contains('show')) {
+          // If next button is visible, Enter triggers next question!
+          nextActionBtn.click();
+        } else {
+          handleSubmitAnswer();
+        }
+      } else if (e.key === 'Escape') {
+        handleClear();
+      }
+    });
+
+    // Next question action on error review
+    nextActionBtn.addEventListener('click', () => {
+      initAudio();
+      nextBtnWrap.classList.remove('show');
+      currentIndex++;
+      updateScoreDisplay();
+      renderQuestion();
+    });
+
+    // Mode tabs (Addition / Subtraction / Mixed)
+    modeTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        initAudio();
+        modeTabs.forEach(t => t.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        currentMode = e.currentTarget.dataset.mode;
+        startGame();
+      });
+    });
+
+    // Digit range toggle button (1-digit / 2-digit / mixed)
+    digitToggleBtn.addEventListener('click', () => {
+      initAudio();
+      if (digitSetting === 'mixed') {
+        digitSetting = '1-digit';
+        digitToggleBtn.innerHTML = '<span>🔢 1-Digit Only</span>';
+      } else if (digitSetting === '1-digit') {
+        digitSetting = '2-digit';
+        digitToggleBtn.innerHTML = '<span>🔢 2-Digits Only</span>';
+      } else {
+        digitSetting = 'mixed';
+        digitToggleBtn.innerHTML = '<span>🔢 1 & 2 Digits</span>';
+      }
+      startGame();
+    });
+
+    soundBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundBtn.textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+      if (soundEnabled) initAudio();
+    });
+
+    clearBtn.addEventListener('click', handleClear);
+
+    restartBtn.addEventListener('click', () => {
+      initAudio();
+      startGame();
+    });
+
+    // Initialize game on load
+    window.addEventListener('DOMContentLoaded', startGame);
+  </script>
+</body>
+</html>
