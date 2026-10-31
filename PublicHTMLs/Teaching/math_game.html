@@ -54,60 +54,33 @@
       position: relative;
     }
 
-    /* Mode Selector Bar at Top */
-    .mode-pills {
-      display: flex;
-      gap: 6px;
-      width: 100%;
-      margin-bottom: 12px;
-      justify-content: center;
-    }
-
-    .mode-tab {
-      flex: 1;
-      padding: 8px 4px;
-      font-size: 0.88rem;
-      font-weight: 800;
-      border: 2px solid #cbd5e1;
-      border-radius: 12px;
-      background: #ffffff;
-      color: #64748b;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s ease;
-    }
-
-    .mode-tab.active {
-      background: #4f46e5;
-      color: #ffffff;
-      border-color: #3730a3;
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
-    }
-
     /* Header Bar */
     .header {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .badge {
       background: #eef2ff;
       border: 2px solid #c7d2fe;
       color: var(--primary-dark);
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
       font-weight: 800;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
-    .digit-badge {
+    .mode-status-badge {
       background: #fdf2f8;
+      border-color: #fbcfe8;
+      color: #be185d;
+    }
       border-color: #fbcfe8;
       color: #be185d;
       cursor: pointer;
@@ -414,6 +387,54 @@
       cursor: not-allowed;
     }
 
+    /* Bottom Parameter Settings Card */
+    .bottom-settings-card {
+      width: 100%;
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 12px 14px;
+      margin-top: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .settings-row-label {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 5px;
+    }
+
+    .mode-pills, .digits-pills {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    .mode-tab, .digit-tab {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      border: 2px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #64748b;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .mode-tab.active, .digit-tab.active {
+      background: #4f46e5;
+      color: #ffffff;
+      border-color: #3730a3;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25);
+    }
+
     /* Footer Toolbar */
     .footer-tools {
       width: 100%;
@@ -549,17 +570,10 @@
     <!-- Active Game Screen -->
     <div id="game-view" style="width: 100%;">
 
-      <!-- Mode Selector (Addition / Subtraction / Both) -->
-      <div class="mode-pills">
-        <button class="mode-tab active" data-mode="add">➕ Addition</button>
-        <button class="mode-tab" data-mode="sub">➖ Subtraction</button>
-        <button class="mode-tab" data-mode="mixed">🔀 Mixed (+ / -)</button>
-      </div>
-
       <!-- Header & Score Bar -->
       <div class="header">
-        <div class="badge digit-badge" id="digit-toggle-btn" title="Tap to switch between 1-digit and 2-digits">
-          <span>🔢 1 & 2 Digits</span>
+        <div class="badge mode-status-badge" id="mode-status-badge">
+          <span>➕ Addition • 1 & 2 Digits</span>
         </div>
         <div class="badge" id="score-badge">
           <span>⭐ 0 / 10</span>
@@ -625,6 +639,23 @@
         <button class="key-btn action-enter" data-key="enter" title="Check Answer">✓ Enter</button>
       </div>
 
+      <!-- Bottom Parameter Controls (Operations & Digits moved to the bottom) -->
+      <div class="bottom-settings-card">
+        <div class="settings-row-label">Operation:</div>
+        <div class="mode-pills">
+          <button class="mode-tab active" data-mode="add">➕ Addition</button>
+          <button class="mode-tab" data-mode="sub">➖ Subtraction</button>
+          <button class="mode-tab" data-mode="mixed">🔀 Mixed</button>
+        </div>
+
+        <div class="settings-row-label">Numbers:</div>
+        <div class="digits-pills">
+          <button class="digit-tab" data-digits="1-digit">1-Digit (1-9)</button>
+          <button class="digit-tab" data-digits="2-digit">2-Digits (10-99)</button>
+          <button class="digit-tab active" data-digits="mixed">Mixed (1 & 2)</button>
+        </div>
+      </div>
+
       <!-- Footer Utilities -->
       <div class="footer-tools">
         <button class="tool-btn" id="sound-btn">
@@ -675,7 +706,7 @@
     const endScreen = document.getElementById('end-screen');
     const scoreBadge = document.getElementById('score-badge');
     const progressBar = document.getElementById('progress-bar');
-    const digitToggleBtn = document.getElementById('digit-toggle-btn');
+    const modeStatusBadge = document.getElementById('mode-status-badge');
     const numAElem = document.getElementById('num-a');
     const numBElem = document.getElementById('num-b');
     const mathOpElem = document.getElementById('math-op');
@@ -688,6 +719,7 @@
     const nextActionBtn = document.getElementById('next-action-btn');
     const keypadButtons = document.querySelectorAll('.key-btn');
     const modeTabs = document.querySelectorAll('.mode-tab');
+    const digitTabs = document.querySelectorAll('.digit-tab');
     const soundBtn = document.getElementById('sound-btn');
     const clearBtn = document.getElementById('clear-btn');
     const restartBtn = document.getElementById('restart-btn');
@@ -968,25 +1000,14 @@
       const stepsHTML = steps.map(s => `<div>👉 <strong>${s}</strong></div>`).join('');
 
       return `
-        <div class="correction-banner">
-          <div class="correction-pill-row">
-            <span class="badge-wrong-ans">Your Answer: ${userAnswer === '' ? 'empty' : userAnswer} ❌</span>
-            <span>➔</span>
-            <span class="badge-correct-ans">Correct: ${answer} ✅</span>
-          </div>
-          <div class="correction-big-equation">
-            ${a} ${op} ${b} = ${answer}
-          </div>
-        </div>
-
         <!-- Vertical Column Math Representation -->
-        <div style="text-align: center; margin: 8px 0;">
+        <div style="text-align: center; margin: 4px 0 10px 0;">
           <pre class="column-math-pre">${columnAscii}</pre>
         </div>
 
         <!-- Step-by-Step Breakdown -->
         <div class="calc-steps-box">
-          <div style="color: #6366f1; font-weight: 800; margin-bottom: 6px;">📝 Step-by-step:</div>
+          <div style="color: #4f46e5; font-weight: 800; margin-bottom: 6px;">📝 Step-by-step:</div>
           ${stepsHTML}
         </div>
       `;
@@ -995,6 +1016,18 @@
     // =========================================================================
     // 🎮 GAMEPLAY FLOW
     // =========================================================================
+    function updateHeaderBadge() {
+      let opText = '➕ Addition';
+      if (currentMode === 'sub') opText = '➖ Subtraction';
+      else if (currentMode === 'mixed') opText = '🔀 Mixed';
+
+      let digText = '1 & 2 Digits';
+      if (digitSetting === '1-digit') digText = '1-Digit';
+      else if (digitSetting === '2-digit') digText = '2-Digits';
+
+      modeStatusBadge.innerHTML = `<span>${opText} • ${digText}</span>`;
+    }
+
     function startGame() {
       questionDeck = generateDeck();
       currentIndex = 0;
@@ -1008,6 +1041,7 @@
       explanationCard.style.display = 'none';
       nextBtnWrap.classList.remove('show');
 
+      updateHeaderBadge();
       updateScoreDisplay();
       renderQuestion();
     }
@@ -1134,8 +1168,8 @@
         const cursor = document.getElementById('cursor-blink');
         if (cursor) cursor.style.display = 'none';
 
-        // Show correction banner & breakdown
-        explanationTitle.innerHTML = '<span>❌ Answer Correction:</span>';
+        // Show column breakdown
+        explanationTitle.innerHTML = `<span>💡 Solution: ${q.a} ${q.op} ${q.b} = ${q.answer}</span>`;
         explanationSteps.innerHTML = buildExplanationHTML(q, typedValue);
         explanationCard.style.display = 'block';
         explanationCard.className = 'explanation-card show wrong';
@@ -1233,20 +1267,15 @@
       });
     });
 
-    // Digit range toggle button (1-digit / 2-digit / mixed)
-    digitToggleBtn.addEventListener('click', () => {
-      initAudio();
-      if (digitSetting === 'mixed') {
-        digitSetting = '1-digit';
-        digitToggleBtn.innerHTML = '<span>🔢 1-Digit Only</span>';
-      } else if (digitSetting === '1-digit') {
-        digitSetting = '2-digit';
-        digitToggleBtn.innerHTML = '<span>🔢 2-Digits Only</span>';
-      } else {
-        digitSetting = 'mixed';
-        digitToggleBtn.innerHTML = '<span>🔢 1 & 2 Digits</span>';
-      }
-      startGame();
+    // Digit tabs (1-Digit / 2-Digits / Mixed)
+    digitTabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        initAudio();
+        digitTabs.forEach(t => t.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        digitSetting = e.currentTarget.dataset.digits;
+        startGame();
+      });
     });
 
     soundBtn.addEventListener('click', () => {
