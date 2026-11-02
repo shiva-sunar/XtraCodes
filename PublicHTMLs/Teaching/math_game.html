@@ -81,10 +81,6 @@
       border-color: #fbcfe8;
       color: #be185d;
     }
-      border-color: #fbcfe8;
-      color: #be185d;
-      cursor: pointer;
-    }
 
     /* Progress Bar */
     .progress-wrap {
@@ -104,12 +100,12 @@
       transition: width 0.35s ease;
     }
 
-    /* Question Stage */
-    .question-card {
+    /* Column Math Stage */
+    .column-stage {
       width: 100%;
       background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-      border-radius: 20px;
-      padding: 16px 12px;
+      border-radius: 22px;
+      padding: 16px 12px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -117,61 +113,134 @@
       margin-bottom: 12px;
     }
 
-    .math-expression {
+    .math-column-table {
+      display: inline-grid;
+      gap: 6px 8px;
+      align-items: center;
+      justify-items: center;
+      background: #ffffff;
+      border: 3px solid #e0e7ff;
+      border-radius: 20px;
+      padding: 12px 18px 14px;
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.08);
+      margin: 0 auto;
+    }
+
+    .col-cell {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      min-width: 48px;
+      height: 52px;
+    }
+
+    .col-digit {
       font-size: 2.5rem;
       font-weight: 900;
       color: #1e1b4b;
-      letter-spacing: 1px;
-      line-height: 1.2;
+      line-height: 1;
+      font-family: system-ui, -apple-system, sans-serif;
     }
 
-    .math-op {
+    .col-op {
+      font-size: 2.3rem;
+      font-weight: 900;
       color: #ec4899;
-      font-size: 2.7rem;
+      line-height: 1;
     }
 
-    /* Number Input Screen */
-    .input-screen-wrap {
-      margin-top: 10px;
+    .col-divider {
+      grid-column: 1 / -1;
+      height: 3.5px;
+      background: #312e81;
+      border-radius: 999px;
       width: 100%;
-      display: flex;
-      justify-content: center;
+      margin: 2px 0 6px;
     }
 
-    .input-box-display {
-      min-width: 130px;
-      height: 58px;
+    .digit-box {
+      width: 48px;
+      height: 54px;
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #312e81;
+      text-align: center;
       background: #ffffff;
-      border: 3.5px solid #6366f1;
+      border: 3px solid #6366f1;
+      border-radius: 14px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+      transition: all 0.15s ease;
+      caret-color: #6366f1;
+      padding: 0;
+      outline: none;
+    }
+
+    .digit-box:focus {
+      border-color: #ec4899;
+      background: #fdf2f8;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+    }
+
+    .digit-box.carry-box {
+      width: 40px;
+      height: 40px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      border: 2.5px dashed #f472b6;
+      border-radius: 10px;
+      background: #fff5f8;
+      color: #be185d;
+      margin: 0 auto;
+    }
+
+    .digit-box.carry-box:focus {
+      border-color: #db2777;
+      border-style: solid;
+      background: #fce7f3;
+    }
+
+    .digit-box.correct {
+      border-color: #16a34a !important;
+      background: #dcfce7 !important;
+      color: #15803d !important;
+    }
+
+    .digit-box.wrong {
+      border-color: #dc2626 !important;
+      background: #fee2e2 !important;
+      color: #991b1b !important;
+      animation: shake 0.4s ease;
+    }
+
+    /* Check Answer Button (using Native Android Numeric Keypad) */
+    .check-answer-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      border-bottom: 5px solid #047857;
+      padding: 14px 18px;
       border-radius: 16px;
+      font-size: 1.3rem;
+      font-weight: 900;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.3rem;
-      font-weight: 900;
-      color: #312e81;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
-      padding: 0 16px;
-      letter-spacing: 2px;
-      position: relative;
+      gap: 8px;
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+      transition: all 0.12s ease;
+      margin-bottom: 8px;
     }
 
-    .cursor-blink {
-      display: inline-block;
-      width: 3px;
-      height: 32px;
-      background: #6366f1;
-      margin-left: 4px;
-      animation: blink 1s infinite;
+    .check-answer-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 3px;
     }
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0; }
+    .check-answer-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     /* Explanation & Feedback Box */
@@ -335,67 +404,56 @@
       border-bottom-width: 3px;
     }
 
-    /* Kid-Friendly Touch Keypad */
-    .keypad-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+    /* Collapsible Settings Accordion (Collapsed by default) */
+    .settings-collapse {
       width: 100%;
+      margin-top: 14px;
+      border-radius: 18px;
+      border: 2px dashed #cbd5e1;
+      background: #f8fafc;
+      overflow: hidden;
+      transition: all 0.2s ease;
     }
 
-    .key-btn {
-      background: #ffffff;
-      border: 2px solid #e0e7ff;
-      border-bottom: 5px solid #cbd5e1;
-      border-radius: 16px;
-      padding: 14px 0;
-      font-size: 1.7rem;
-      font-weight: 900;
-      color: #1e1b4b;
+    .settings-summary {
+      padding: 11px 16px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #4f46e5;
       cursor: pointer;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all 0.1s ease;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+      justify-content: space-between;
+      list-style: none;
+      user-select: none;
+      background: #f8fafc;
     }
 
-    .key-btn:active:not(:disabled) {
-      transform: translateY(2px);
-      border-bottom-width: 3px;
-      background: #f5f3ff;
+    .settings-summary::-webkit-details-marker {
+      display: none;
     }
 
-    .key-btn.action-del {
-      background: #fef2f2;
-      border-color: #fecaca;
-      border-bottom-color: #fca5a5;
-      color: #dc2626;
-      font-size: 1.4rem;
+    .settings-collapse[open] {
+      border-style: solid;
+      border-color: #c7d2fe;
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
     }
 
-    .key-btn.action-enter {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-      border-bottom-color: #86efac;
-      color: #16a34a;
-      font-size: 1.35rem;
+    .settings-collapse[open] .chevron-icon {
+      transform: rotate(180deg);
     }
 
-    .key-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .chevron-icon {
+      transition: transform 0.2s ease;
+      font-size: 1.15rem;
+      color: #64748b;
     }
 
-    /* Bottom Parameter Settings Card */
+    /* Bottom Parameter Settings Card (inside details) */
     .bottom-settings-card {
       width: 100%;
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 12px 14px;
-      margin-top: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      padding: 6px 14px 12px;
     }
 
     .settings-row-label {
@@ -585,23 +643,15 @@
         <div class="progress-bar" id="progress-bar"></div>
       </div>
 
-      <!-- Central Math Question Display -->
-      <div class="question-card">
-        <div class="math-expression">
-          <span id="num-a">24</span>
-          <span class="math-op" id="math-op">+</span>
-          <span id="num-b">15</span>
-          <span>=</span>
-        </div>
-
-        <!-- Input Box Display with Blinking Cursor -->
-        <div class="input-screen-wrap">
-          <div class="input-box-display" id="input-box-display">
-            <span id="typed-number"></span>
-            <span class="cursor-blink" id="cursor-blink"></span>
-          </div>
-        </div>
+      <!-- Vertical Column Math Question Stage -->
+      <div class="column-stage" id="column-stage">
+        <!-- Rendered dynamically with carry box & individual digit boxes -->
       </div>
+
+      <!-- Check Answer Button (native Android num keypad submit) -->
+      <button class="check-answer-btn" id="check-answer-btn">
+        <span>✓ Check Answer</span>
+      </button>
 
       <!-- Step-by-Step Explanation Banner (Stops here on wrong answer!) -->
       <div class="explanation-card" id="explanation-card">
@@ -620,41 +670,28 @@
         </button>
       </div>
 
-      <!-- Mobile-Friendly Numeric Touch Keypad -->
-      <div class="keypad-grid" id="keypad-grid">
-        <button class="key-btn" data-key="1">1</button>
-        <button class="key-btn" data-key="2">2</button>
-        <button class="key-btn" data-key="3">3</button>
+      <!-- Bottom Parameter Controls (Collapsible, collapsed by default) -->
+      <details class="settings-collapse" id="settings-collapse">
+        <summary class="settings-summary">
+          <span>⚙️ Settings: Operation & Numbers</span>
+          <span class="chevron-icon">▾</span>
+        </summary>
+        <div class="bottom-settings-card">
+          <div class="settings-row-label">Operation:</div>
+          <div class="mode-pills">
+            <button class="mode-tab active" data-mode="add">➕ Addition</button>
+            <button class="mode-tab" data-mode="sub">➖ Subtraction</button>
+            <button class="mode-tab" data-mode="mixed">🔀 Mixed</button>
+          </div>
 
-        <button class="key-btn" data-key="4">4</button>
-        <button class="key-btn" data-key="5">5</button>
-        <button class="key-btn" data-key="6">6</button>
-
-        <button class="key-btn" data-key="7">7</button>
-        <button class="key-btn" data-key="8">8</button>
-        <button class="key-btn" data-key="9">9</button>
-
-        <button class="key-btn action-del" data-key="del" title="Delete">⌫</button>
-        <button class="key-btn" data-key="0">0</button>
-        <button class="key-btn action-enter" data-key="enter" title="Check Answer">✓ Enter</button>
-      </div>
-
-      <!-- Bottom Parameter Controls (Operations & Digits moved to the bottom) -->
-      <div class="bottom-settings-card">
-        <div class="settings-row-label">Operation:</div>
-        <div class="mode-pills">
-          <button class="mode-tab active" data-mode="add">➕ Addition</button>
-          <button class="mode-tab" data-mode="sub">➖ Subtraction</button>
-          <button class="mode-tab" data-mode="mixed">🔀 Mixed</button>
+          <div class="settings-row-label">Numbers:</div>
+          <div class="digits-pills">
+            <button class="digit-tab" data-digits="1-digit">1-Digit (1-9)</button>
+            <button class="digit-tab" data-digits="2-digit">2-Digits (10-99)</button>
+            <button class="digit-tab active" data-digits="mixed">Mixed (1 & 2)</button>
+          </div>
         </div>
-
-        <div class="settings-row-label">Numbers:</div>
-        <div class="digits-pills">
-          <button class="digit-tab" data-digits="1-digit">1-Digit (1-9)</button>
-          <button class="digit-tab" data-digits="2-digit">2-Digits (10-99)</button>
-          <button class="digit-tab active" data-digits="mixed">Mixed (1 & 2)</button>
-        </div>
-      </div>
+      </details>
 
       <!-- Footer Utilities -->
       <div class="footer-tools">
@@ -697,7 +734,6 @@
     let questionDeck = [];
     let currentIndex = 0;
     let score = 0;
-    let typedValue = '';
     let isAnsweringBlocked = false;
     let soundEnabled = true;
 
@@ -707,22 +743,19 @@
     const scoreBadge = document.getElementById('score-badge');
     const progressBar = document.getElementById('progress-bar');
     const modeStatusBadge = document.getElementById('mode-status-badge');
-    const numAElem = document.getElementById('num-a');
-    const numBElem = document.getElementById('num-b');
-    const mathOpElem = document.getElementById('math-op');
-    const typedNumberElem = document.getElementById('typed-number');
-    const inputBoxDisplay = document.getElementById('input-box-display');
+    const columnStage = document.getElementById('column-stage');
+    const checkAnswerBtn = document.getElementById('check-answer-btn');
     const explanationCard = document.getElementById('explanation-card');
     const explanationTitle = document.getElementById('explanation-title');
     const explanationSteps = document.getElementById('explanation-steps');
     const nextBtnWrap = document.getElementById('next-btn-wrap');
     const nextActionBtn = document.getElementById('next-action-btn');
-    const keypadButtons = document.querySelectorAll('.key-btn');
     const modeTabs = document.querySelectorAll('.mode-tab');
     const digitTabs = document.querySelectorAll('.digit-tab');
     const soundBtn = document.getElementById('sound-btn');
     const clearBtn = document.getElementById('clear-btn');
     const restartBtn = document.getElementById('restart-btn');
+    const settingsCollapse = document.getElementById('settings-collapse');
 
     // Confetti canvas setup
     const canvas = document.getElementById('confetti-canvas');
@@ -1032,7 +1065,6 @@
       questionDeck = generateDeck();
       currentIndex = 0;
       score = 0;
-      typedValue = '';
       isAnsweringBlocked = false;
 
       gameView.style.display = 'block';
@@ -1040,6 +1072,7 @@
       explanationCard.className = 'explanation-card';
       explanationCard.style.display = 'none';
       nextBtnWrap.classList.remove('show');
+      checkAnswerBtn.disabled = false;
 
       updateHeaderBadge();
       updateScoreDisplay();
@@ -1059,80 +1092,209 @@
       }
 
       isAnsweringBlocked = false;
-      typedValue = '';
-      updateInputDisplay();
-
-      const cursor = document.getElementById('cursor-blink');
-      if (cursor) cursor.style.display = 'inline-block';
+      checkAnswerBtn.disabled = false;
 
       // Reset panels
       explanationCard.className = 'explanation-card';
       explanationCard.style.display = 'none';
       nextBtnWrap.classList.remove('show');
-      inputBoxDisplay.style.borderColor = '#6366f1';
-      inputBoxDisplay.style.backgroundColor = '#ffffff';
-
-      // Enable keypad
-      keypadButtons.forEach(btn => btn.disabled = false);
 
       const q = questionDeck[currentIndex];
-      numAElem.textContent = q.a;
-      numBElem.textContent = q.b;
-      mathOpElem.textContent = q.op;
-    }
+      const aStr = q.a.toString();
+      const bStr = q.b.toString();
+      const ansStr = q.answer.toString();
 
-    function updateInputDisplay() {
-      typedNumberElem.textContent = typedValue;
-    }
+      // Number of digit columns needed
+      const numDigits = Math.max(aStr.length, bStr.length, ansStr.length, 2);
 
-    function handleNumberInput(digit) {
-      if (isAnsweringBlocked) return;
-      playKeypadTap();
-      triggerHaptic('tap');
+      // Build Column Math Board HTML
+      let html = `<div class="math-column-table" style="grid-template-columns: 38px repeat(${numDigits}, 52px);">`;
 
-      // Max 3 digits answer (e.g., 99 + 99 = 198)
-      if (typedValue.length < 3) {
-        typedValue += digit;
-        updateInputDisplay();
+      // Row 1: Carry / Borrow Row
+      // Op cell
+      html += `<div class="col-cell"></div>`;
+      // Digit positions from highest down to 0 (ones)
+      for (let pos = numDigits - 1; pos >= 0; pos--) {
+        if (pos === 1) {
+          // Carry box right above tens column
+          const placeholder = q.op === '+' ? '1' : 'b';
+          const title = q.op === '+' ? 'Carry box' : 'Borrow box';
+          html += `
+            <div class="col-cell">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+                     class="digit-box carry-box" id="carry-box"
+                     placeholder="${placeholder}" title="${title}" autocomplete="off">
+            </div>`;
+        } else {
+          html += `<div class="col-cell"></div>`;
+        }
       }
+
+      // Row 2: Operand A (Number 1: X Y)
+      html += `<div class="col-cell"></div>`;
+      for (let pos = numDigits - 1; pos >= 0; pos--) {
+        const charIdx = aStr.length - 1 - pos;
+        if (charIdx >= 0 && charIdx < aStr.length) {
+          html += `<div class="col-cell"><span class="col-digit">${aStr[charIdx]}</span></div>`;
+        } else {
+          html += `<div class="col-cell"></div>`;
+        }
+      }
+
+      // Row 3: Operator & Operand B (Number 2: + P Q)
+      html += `<div class="col-cell"><span class="col-op">${q.op}</span></div>`;
+      for (let pos = numDigits - 1; pos >= 0; pos--) {
+        const charIdx = bStr.length - 1 - pos;
+        if (charIdx >= 0 && charIdx < bStr.length) {
+          html += `<div class="col-cell"><span class="col-digit">${bStr[charIdx]}</span></div>`;
+        } else {
+          html += `<div class="col-cell"></div>`;
+        }
+      }
+
+      // Row 4: Divider Line
+      html += `<div class="col-divider"></div>`;
+
+      // Row 5: Answer Digit Boxes (R S or H R S)
+      html += `<div class="col-cell"></div>`;
+      for (let pos = numDigits - 1; pos >= 0; pos--) {
+        if (pos < ansStr.length) {
+          html += `
+            <div class="col-cell">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+                     class="digit-box ans-box" id="ans-box-${pos}" data-pos="${pos}"
+                     autocomplete="off">
+            </div>`;
+        } else {
+          html += `<div class="col-cell"></div>`;
+        }
+      }
+
+      html += `</div>`;
+      columnStage.innerHTML = html;
+
+      // Attach navigation & native keyboard listeners
+      setupInputNavigation(ansStr.length);
     }
 
-    function handleDelete() {
-      if (isAnsweringBlocked) return;
-      playKeypadTap();
-      triggerHaptic('tap');
-      if (typedValue.length > 0) {
-        typedValue = typedValue.slice(0, -1);
-        updateInputDisplay();
+    function setupInputNavigation(ansLen) {
+      const allInputs = Array.from(columnStage.querySelectorAll('input'));
+      const ansBoxes = [];
+      for (let pos = ansLen - 1; pos >= 0; pos--) {
+        const box = document.getElementById('ans-box-' + pos);
+        if (box) ansBoxes.push(box);
+      }
+
+      allInputs.forEach(input => {
+        // Auto select on focus for easy overwriting
+        input.addEventListener('focus', () => {
+          setTimeout(() => input.select(), 50);
+        });
+
+        // Native numeric input handling
+        input.addEventListener('input', (e) => {
+          playKeypadTap();
+          triggerHaptic('tap');
+
+          // Keep only 0-9
+          input.value = input.value.replace(/[^0-9]/g, '');
+          if (input.value.length > 1) {
+            input.value = input.value.slice(-1);
+          }
+
+          // Auto-advance right-to-left (Ones -> Tens -> Hundreds)
+          if (input.value.length === 1) {
+            if (input.classList.contains('ans-box')) {
+              const currentPos = parseInt(input.dataset.pos, 10);
+              // Move to next higher position (e.g. 0 -> 1 -> 2)
+              const nextBox = document.getElementById('ans-box-' + (currentPos + 1));
+              if (nextBox) {
+                nextBox.focus();
+              }
+            } else if (input.id === 'carry-box') {
+              // If entered carry, jump to tens box
+              const tensBox = document.getElementById('ans-box-1') || document.getElementById('ans-box-0');
+              if (tensBox) tensBox.focus();
+            }
+          }
+        });
+
+        // Backspace & Enter navigation
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && input.value === '') {
+            if (input.classList.contains('ans-box')) {
+              const currentPos = parseInt(input.dataset.pos, 10);
+              // Move back to lower position (e.g. 2 -> 1 -> 0)
+              const prevBox = document.getElementById('ans-box-' + (currentPos - 1));
+              if (prevBox) prevBox.focus();
+            }
+          } else if (e.key === 'Enter') {
+            handleSubmitAnswer();
+          }
+        });
+      });
+
+      // Auto-focus the Ones box (ans-box-0) to trigger native Android numeric keyboard
+      const onesBox = document.getElementById('ans-box-0');
+      if (onesBox) {
+        setTimeout(() => {
+          onesBox.focus();
+        }, 150);
       }
     }
 
     function handleClear() {
       if (isAnsweringBlocked) return;
       playKeypadTap();
-      typedValue = '';
-      updateInputDisplay();
+      const allInputs = columnStage.querySelectorAll('input');
+      allInputs.forEach(inp => {
+        inp.value = '';
+        inp.classList.remove('correct', 'wrong');
+        inp.disabled = false;
+      });
+      const onesBox = document.getElementById('ans-box-0');
+      if (onesBox) onesBox.focus();
     }
 
     function handleSubmitAnswer() {
       if (isAnsweringBlocked) return;
       initAudio();
 
-      if (typedValue === '') {
-        // Gentle reminder to enter something
-        inputBoxDisplay.style.borderColor = '#f59e0b';
-        setTimeout(() => {
-          if (!isAnsweringBlocked) inputBoxDisplay.style.borderColor = '#6366f1';
-        }, 500);
+      const q = questionDeck[currentIndex];
+      const ansStr = q.answer.toString();
+      let enteredValStr = '';
+      let hasEmpty = false;
+      let firstEmpty = null;
+
+      // Read from highest position (Hundreds) down to position 0 (Ones)
+      for (let pos = ansStr.length - 1; pos >= 0; pos--) {
+        const box = document.getElementById('ans-box-' + pos);
+        if (!box || box.value.trim() === '') {
+          hasEmpty = true;
+          if (!firstEmpty) firstEmpty = box;
+        } else {
+          enteredValStr += box.value.trim();
+        }
+      }
+
+      if (hasEmpty) {
+        if (firstEmpty) {
+          firstEmpty.style.borderColor = '#f59e0b';
+          firstEmpty.focus();
+          setTimeout(() => {
+            if (!isAnsweringBlocked && firstEmpty) firstEmpty.style.borderColor = '#6366f1';
+          }, 500);
+        }
         return;
       }
 
-      const q = questionDeck[currentIndex];
-      const parsedVal = parseInt(typedValue, 10);
+      const parsedVal = parseInt(enteredValStr, 10);
       const isCorrect = (parsedVal === q.answer);
 
       isAnsweringBlocked = true;
-      keypadButtons.forEach(btn => btn.disabled = true);
+      checkAnswerBtn.disabled = true;
+      const allInputs = columnStage.querySelectorAll('input');
+      allInputs.forEach(inp => inp.disabled = true);
 
       if (isCorrect) {
         // ✅ CORRECT PATH:
@@ -1141,8 +1303,11 @@
         triggerHaptic('success');
         launchConfetti(25);
 
-        inputBoxDisplay.style.borderColor = 'var(--correct)';
-        inputBoxDisplay.style.backgroundColor = 'var(--correct-bg)';
+        const ansBoxes = columnStage.querySelectorAll('.ans-box');
+        ansBoxes.forEach(b => b.classList.add('correct'));
+
+        const carryBox = document.getElementById('carry-box');
+        if (carryBox && carryBox.value) carryBox.classList.add('correct');
 
         explanationTitle.innerHTML = '<span>🌟 Outstanding! That is correct!</span>';
         explanationSteps.innerHTML = `<div style="font-size:1.3rem;text-align:center;font-weight:900;color:#15803d">${q.a} ${q.op} ${q.b} = ${q.answer} 🎉</div>`;
@@ -1160,17 +1325,12 @@
         playWrongSound();
         triggerHaptic('wrong');
 
-        inputBoxDisplay.style.borderColor = 'var(--wrong)';
-        inputBoxDisplay.style.backgroundColor = 'var(--wrong-bg)';
-
-        // Show correction directly in the central input box too!
-        typedNumberElem.innerHTML = `<span style="text-decoration:line-through;color:#dc2626">${typedValue}</span> <span style="color:#16a34a;margin-left:8px;font-weight:900">➜ ${q.answer}</span>`;
-        const cursor = document.getElementById('cursor-blink');
-        if (cursor) cursor.style.display = 'none';
+        const ansBoxes = columnStage.querySelectorAll('.ans-box');
+        ansBoxes.forEach(b => b.classList.add('wrong'));
 
         // Show column breakdown
         explanationTitle.innerHTML = `<span>💡 Solution: ${q.a} ${q.op} ${q.b} = ${q.answer}</span>`;
-        explanationSteps.innerHTML = buildExplanationHTML(q, typedValue);
+        explanationSteps.innerHTML = buildExplanationHTML(q, enteredValStr);
         explanationCard.style.display = 'block';
         explanationCard.className = 'explanation-card show wrong';
 
@@ -1213,31 +1373,16 @@
     // =========================================================================
     // ⚙️ EVENT LISTENERS & CONTROLS
     // =========================================================================
-    // On-screen keypad clicks
-    keypadButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const key = e.currentTarget.dataset.key;
-        if (key === 'del') {
-          handleDelete();
-        } else if (key === 'enter') {
-          handleSubmitAnswer();
-        } else {
-          handleNumberInput(key);
-        }
-      });
-    });
+    // Check answer button (submits answer from native Android numpad inputs)
+    checkAnswerBtn.addEventListener('click', handleSubmitAnswer);
 
     // Physical keyboard support for desktop
     window.addEventListener('keydown', (e) => {
       if (gameView.style.display === 'none') return;
 
-      if (e.key >= '0' && e.key <= '9') {
-        handleNumberInput(e.key);
-      } else if (e.key === 'Backspace') {
-        handleDelete();
-      } else if (e.key === 'Enter') {
+      if (e.key === 'Enter') {
         if (nextBtnWrap.classList.contains('show')) {
-          // If next button is visible, Enter triggers next question!
+          // If next button is visible on error review, Enter triggers next question!
           nextActionBtn.click();
         } else {
           handleSubmitAnswer();
