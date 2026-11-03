@@ -87,7 +87,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      padding: 4px 0 14px 0;
+      padding: 4px 0 12px 0;
       font-size: 2.4rem;
       font-weight: 900;
     }
@@ -140,6 +140,62 @@
       animation: shake 0.4s ease;
     }
 
+    /* Toggle Collapsible Button */
+    .toggle-pebbles-btn {
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .toggle-pebbles-btn:hover {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+    }
+
+    .toggle-pebbles-btn.active {
+      background: #e0e7ff;
+      border-color: #818cf8;
+      color: #3730a3;
+    }
+
+    .toggle-arrow {
+      font-size: 0.72rem;
+      transition: transform 0.25s ease;
+    }
+
+    .toggle-pebbles-btn.active .toggle-arrow {
+      transform: rotate(180deg);
+    }
+
+    /* Collapsible Drawer */
+    .pebbles-drawer {
+      width: 100%;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, margin 0.25s ease;
+      margin-bottom: 0;
+      pointer-events: none;
+    }
+
+    .pebbles-drawer.open {
+      max-height: 380px;
+      opacity: 1;
+      margin-bottom: 14px;
+      pointer-events: auto;
+    }
+
     /* Pebble Holders Area */
     .board-container {
       width: 100%;
@@ -147,7 +203,7 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
 
     /* 5x2 Pebble Box - Borderless & Clean */
@@ -259,15 +315,16 @@
       opacity: 0.95;
     }
 
-    /* Action Buttons */
-    .action-row {
+    /* Pebble Tools Row inside Drawer */
+    .pebble-tools-row {
       width: 100%;
       display: flex;
       gap: 8px;
+      margin-top: 4px;
     }
 
+    /* Action Buttons */
     .btn {
-      flex: 1;
       height: 46px;
       border: none;
       border-radius: 12px;
@@ -282,7 +339,16 @@
       transition: all 0.1s ease;
     }
 
+    .btn-tool {
+      flex: 1;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1.5px solid #cbd5e1;
+      font-size: 0.95rem;
+    }
+
     .btn-check {
+      width: 100%;
       background: #0f172a;
       color: #ffffff;
       border-bottom: 4px solid #000000;
@@ -291,13 +357,6 @@
     .btn-check:active {
       transform: translateY(2px);
       border-bottom-width: 2px;
-    }
-
-    .btn-tool {
-      background: #f1f5f9;
-      color: #334155;
-      border: 1.5px solid #cbd5e1;
-      font-size: 0.95rem;
     }
 
     .btn-next {
@@ -367,34 +426,45 @@
              class="answer-box" id="answer-input" placeholder="?" autocomplete="off" />
     </div>
 
-    <!-- The Two 5x2 Pebble Holders (No outer outline box) -->
-    <div class="board-container">
+    <!-- Toggle Helper Button (Collapsible Trigger) -->
+    <button class="toggle-pebbles-btn" id="toggle-pebbles-btn" type="button">
+      <span id="toggle-btn-label">🪨 Show Pebbles</span>
+      <span class="toggle-arrow" id="toggle-arrow">▼</span>
+    </button>
 
-      <!-- Box 1: 5x2 Pebble Holder -->
-      <div class="pebble-box" id="box-1">
-        <div class="grid-5x2" id="grid-1">
-          <!-- 10 slots -->
+    <!-- Collapsible Pebbles Drawer -->
+    <div class="pebbles-drawer" id="pebbles-drawer">
+
+      <!-- The Two 5x2 Pebble Holders -->
+      <div class="board-container">
+        <!-- Box 1: 5x2 Pebble Holder -->
+        <div class="pebble-box" id="box-1">
+          <div class="grid-5x2" id="grid-1">
+            <!-- 10 slots -->
+          </div>
+        </div>
+
+        <!-- Plus Sign -->
+        <div class="plus-divider">+</div>
+
+        <!-- Box 2: 5x2 Pebble Holder -->
+        <div class="pebble-box" id="box-2">
+          <div class="grid-5x2" id="grid-2">
+            <!-- 10 slots -->
+          </div>
         </div>
       </div>
 
-      <!-- Plus Sign -->
-      <div class="plus-divider">+</div>
-
-      <!-- Box 2: 5x2 Pebble Holder -->
-      <div class="pebble-box" id="box-2">
-        <div class="grid-5x2" id="grid-2">
-          <!-- 10 slots -->
-        </div>
+      <!-- Pebble Helper Tools inside Drawer -->
+      <div class="pebble-tools-row">
+        <button class="btn btn-tool" id="btn-auto" title="Auto move to 10">💡 Auto</button>
+        <button class="btn btn-tool" id="btn-reset" title="Reset Pebbles">🔄 Reset</button>
       </div>
 
     </div>
 
-    <!-- Action Buttons -->
-    <div class="action-row">
-      <button class="btn btn-tool" id="btn-auto" title="Auto move to 10">💡 Auto</button>
-      <button class="btn btn-tool" id="btn-reset" title="Reset Pebbles">🔄 Reset</button>
-      <button class="btn btn-check" id="btn-check">Check</button>
-    </div>
+    <!-- Main Action: Check Answer -->
+    <button class="btn btn-check" id="btn-check">Check</button>
 
     <!-- Next Question Button -->
     <button class="btn-next" id="btn-next">Next Question ➔</button>
@@ -404,8 +474,6 @@
   <script>
     // =========================================================================
     // ⚙️ DYNAMIC RANDOMIZED QUESTION POOL
-    // Generates diverse 1-digit addition questions crossing 10 (a: 4..9, b: 2..9)
-    // Never repeats the same starting number consecutively!
     // =========================================================================
     let questionDeck = [];
     let prevA = null;
@@ -451,6 +519,9 @@
     let box1Slots = Array(10).fill(null);
     let box2Slots = Array(10).fill(null);
 
+    // Collapsible state
+    let isPebblesOpen = false;
+
     // DOM Elements
     const numADisplay = document.getElementById('num-a-display');
     const numBDisplay = document.getElementById('num-b-display');
@@ -463,6 +534,9 @@
     const btnReset = document.getElementById('btn-reset');
     const scoreDisplay = document.getElementById('score-display');
     const soundToggle = document.getElementById('sound-toggle');
+    const togglePebblesBtn = document.getElementById('toggle-pebbles-btn');
+    const toggleBtnLabel = document.getElementById('toggle-btn-label');
+    const pebblesDrawer = document.getElementById('pebbles-drawer');
 
     // Confetti Canvas
     const canvas = document.getElementById('confetti-canvas');
@@ -475,6 +549,27 @@
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+
+    // =========================================================================
+    // 🗂️ COLLAPSIBLE PEBBLES LOGIC
+    // =========================================================================
+    function setPebblesOpen(open) {
+      isPebblesOpen = open;
+      if (open) {
+        pebblesDrawer.classList.add('open');
+        togglePebblesBtn.classList.add('active');
+        toggleBtnLabel.textContent = '🪨 Hide Pebbles';
+      } else {
+        pebblesDrawer.classList.remove('open');
+        togglePebblesBtn.classList.remove('active');
+        toggleBtnLabel.textContent = '🪨 Show Pebbles';
+      }
+    }
+
+    togglePebblesBtn.addEventListener('click', () => {
+      initAudio();
+      setPebblesOpen(!isPebblesOpen);
+    });
 
     // =========================================================================
     // 🔊 AUDIO SYNTHESIS
@@ -611,6 +706,9 @@
       btnNext.classList.remove('show');
 
       scoreDisplay.textContent = `⭐ ${score} / 10`;
+
+      // Collapse by default for new question (visible only when needed)
+      setPebblesOpen(false);
 
       resetSlots();
       renderGrids();
@@ -774,7 +872,6 @@
       const targetArr = (boxNum === 1 ? box1Slots : box2Slots);
       const sourceArr = (boxNum === 1 ? box2Slots : box1Slots);
 
-      // Find last pebble in sourceArr to pull
       let lastPebbleIdx = -1;
       for (let i = sourceArr.length - 1; i >= 0; i--) {
         if (sourceArr[i] !== null) {
@@ -829,13 +926,13 @@
       } else {
         playWrongSound();
         answerInput.classList.add('wrong');
-        // Auto fill 10 if not done yet
+        // Visually show pebbles and auto-make 10 to explain
+        setPebblesOpen(true);
         autoMakeTen();
       }
     }
 
     function autoMakeTen() {
-      // Moves enough red pebbles to complete 10 in box 1
       const count1 = countPebbles(box1Slots);
       if (count1 < 10) {
         const needed = 10 - count1;
