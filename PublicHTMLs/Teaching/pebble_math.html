@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pebble Math 🪨</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --red: #ef4444;
+      --red-dark: #dc2626;
+      --correct: #16a34a;
+      --wrong: #dc2626;
+      --slot-bg: #f1f5f9;
+      --slot-border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: linear-gradient(145deg, #f1f5f9 0%, #e2e8f0 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .app-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Top Utility Bar */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .score-pill {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #334155;
+      background: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .sound-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.15rem;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Big Math Equation Banner */
+    .equation-banner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 4px 0 14px 0;
+      font-size: 2.4rem;
+      font-weight: 900;
+    }
+
+    .num-blue {
+      color: var(--blue);
+      text-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .num-red {
+      color: var(--red);
+      text-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    }
+
+    .eq-sign {
+      color: #94a3b8;
+    }
+
+    .answer-box {
+      width: 70px;
+      height: 50px;
+      background: #ffffff;
+      border: 3px solid #0f172a;
+      border-radius: 12px;
+      font-size: 1.8rem;
+      font-weight: 900;
+      text-align: center;
+      color: #0f172a;
+      outline: none;
+      caret-color: var(--blue);
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    .answer-box:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .answer-box.correct {
+      border-color: var(--correct) !important;
+      background: #dcfce7 !important;
+      color: #15803d !important;
+    }
+
+    .answer-box.wrong {
+      border-color: var(--wrong) !important;
+      background: #fee2e2 !important;
+      color: #991b1b !important;
+      animation: shake 0.4s ease;
+    }
+
+    /* Pebble Holders Area */
+    .board-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    /* 5x2 Pebble Box - Borderless & Clean */
+    .pebble-box {
+      width: 100%;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 2px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* 5x2 Grid: 5 columns, 2 rows */
+    .grid-5x2 {
+      display: grid;
+      grid-template-columns: repeat(5, 52px);
+      grid-template-rows: repeat(2, 52px);
+      gap: 8px;
+      justify-content: center;
+      align-content: center;
+    }
+
+    /* Single Slot inside 5x2 Holder */
+    .slot {
+      width: 52px;
+      height: 52px;
+      background: var(--slot-bg);
+      border: 2px dashed var(--slot-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .slot.slot-empty {
+      cursor: pointer;
+    }
+
+    .slot.drag-over {
+      border-color: var(--blue);
+      background: #dbeafe;
+      transform: scale(1.1);
+    }
+
+    /* Plus Sign Divider */
+    .plus-divider {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #94a3b8;
+      line-height: 1;
+      margin: 0;
+    }
+
+    /* 3D Tactile Pebbles (Clean, Vibrant, No Inner Text) */
+    .pebble {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: grab;
+      touch-action: none;
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      z-index: 2;
+    }
+
+    .pebble:active {
+      cursor: grabbing;
+      transform: scale(1.08);
+    }
+
+    /* Blue Pebble */
+    .pebble-blue {
+      background: radial-gradient(circle at 35% 30%, #60a5fa 0%, #2563eb 50%, #1d4ed8 100%);
+      box-shadow: 0 5px 8px rgba(37, 99, 235, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.7);
+      border: 1px solid #1e40af;
+    }
+
+    /* Red Pebble */
+    .pebble-red {
+      background: radial-gradient(circle at 35% 30%, #f87171 0%, #ef4444 50%, #dc2626 100%);
+      box-shadow: 0 5px 8px rgba(239, 68, 68, 0.4), inset 0 2px 3px rgba(255, 255, 255, 0.7);
+      border: 1px solid #b91c1c;
+    }
+
+    .pebble.can-move {
+      animation: floatNudge 1.6s infinite ease-in-out;
+    }
+
+    @keyframes floatNudge {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* Floating Pebble Clone during Drag */
+    .pebble-ghost {
+      position: fixed;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%) scale(1.18);
+      box-shadow: 0 14px 25px rgba(0, 0, 0, 0.35);
+      opacity: 0.95;
+    }
+
+    /* Action Buttons */
+    .action-row {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      height: 46px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: all 0.1s ease;
+    }
+
+    .btn-check {
+      background: #0f172a;
+      color: #ffffff;
+      border-bottom: 4px solid #000000;
+    }
+
+    .btn-check:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    .btn-tool {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1.5px solid #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    .btn-next {
+      display: none;
+      width: 100%;
+      height: 48px;
+      background: #16a34a;
+      color: #ffffff;
+      border: none;
+      border-bottom: 4px solid #15803d;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 10px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      animation: popIn 0.25s ease;
+    }
+
+    .btn-next.show {
+      display: flex;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.94); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-card">
+
+    <!-- Top Utility Bar -->
+    <div class="top-bar">
+      <div class="score-pill" id="score-display">⭐ 0 / 10</div>
+      <button class="sound-btn" id="sound-toggle" title="Toggle Sound">🔊</button>
+    </div>
+
+    <!-- Math Equation Banner -->
+    <div class="equation-banner">
+      <span class="num-blue" id="num-a-display">8</span>
+      <span>+</span>
+      <span class="num-red" id="num-b-display">5</span>
+      <span class="eq-sign">=</span>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2"
+             class="answer-box" id="answer-input" placeholder="?" autocomplete="off" />
+    </div>
+
+    <!-- The Two 5x2 Pebble Holders (No outer outline box) -->
+    <div class="board-container">
+
+      <!-- Box 1: 5x2 Pebble Holder -->
+      <div class="pebble-box" id="box-1">
+        <div class="grid-5x2" id="grid-1">
+          <!-- 10 slots -->
+        </div>
+      </div>
+
+      <!-- Plus Sign -->
+      <div class="plus-divider">+</div>
+
+      <!-- Box 2: 5x2 Pebble Holder -->
+      <div class="pebble-box" id="box-2">
+        <div class="grid-5x2" id="grid-2">
+          <!-- 10 slots -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-row">
+      <button class="btn btn-tool" id="btn-auto" title="Auto move to 10">💡 Auto</button>
+      <button class="btn btn-tool" id="btn-reset" title="Reset Pebbles">🔄 Reset</button>
+      <button class="btn btn-check" id="btn-check">Check</button>
+    </div>
+
+    <!-- Next Question Button -->
+    <button class="btn-next" id="btn-next">Next Question ➔</button>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // ⚙️ DYNAMIC RANDOMIZED QUESTION POOL
+    // Generates diverse 1-digit addition questions crossing 10 (a: 4..9, b: 2..9)
+    // Never repeats the same starting number consecutively!
+    // =========================================================================
+    let questionDeck = [];
+    let prevA = null;
+
+    function buildShuffledDeck() {
+      const pairs = [];
+      for (let a = 4; a <= 9; a++) {
+        for (let b = 2; b <= 9; b++) {
+          if (a + b >= 10 && a + b <= 18) {
+            pairs.push({ a, b });
+          }
+        }
+      }
+      for (let i = pairs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+      }
+      return pairs;
+    }
+
+    function getNextRandomQuestion() {
+      if (questionDeck.length === 0) {
+        questionDeck = buildShuffledDeck();
+      }
+      let pickIdx = 0;
+      for (let i = 0; i < questionDeck.length; i++) {
+        if (questionDeck[i].a !== prevA) {
+          pickIdx = i;
+          break;
+        }
+      }
+      const q = questionDeck.splice(pickIdx, 1)[0];
+      prevA = q.a;
+      return q;
+    }
+
+    let score = 0;
+    let numA = 8;
+    let numB = 5;
+    let soundEnabled = true;
+
+    // Slot state arrays (each holds { type: 'blue' | 'red' } or null)
+    let box1Slots = Array(10).fill(null);
+    let box2Slots = Array(10).fill(null);
+
+    // DOM Elements
+    const numADisplay = document.getElementById('num-a-display');
+    const numBDisplay = document.getElementById('num-b-display');
+    const answerInput = document.getElementById('answer-input');
+    const grid1 = document.getElementById('grid-1');
+    const grid2 = document.getElementById('grid-2');
+    const btnCheck = document.getElementById('btn-check');
+    const btnNext = document.getElementById('btn-next');
+    const btnAuto = document.getElementById('btn-auto');
+    const btnReset = document.getElementById('btn-reset');
+    const scoreDisplay = document.getElementById('score-display');
+    const soundToggle = document.getElementById('sound-toggle');
+
+    // Confetti Canvas
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confetti = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // =========================================================================
+    // 🔊 AUDIO SYNTHESIS
+    // =========================================================================
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, duration, type = 'sine', gainVal = 0.15) {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playStonePlink() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(720 + Math.random() * 80, 0.06, 'triangle', 0.25);
+    }
+
+    function playTenFullChime() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(523.25, 0.12, 'sine', 0.2);
+      setTimeout(() => playTone(783.99, 0.22, 'triangle', 0.25), 80);
+    }
+
+    function playWinSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((f, i) => setTimeout(() => playTone(f, 0.2, 'triangle', 0.25), i * 100));
+    }
+
+    function playWrongSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(330, 0.15, 'sawtooth', 0.12);
+      setTimeout(() => playTone(260, 0.22, 'sawtooth', 0.12), 110);
+    }
+
+    // =========================================================================
+    // 🎊 CONFETTI
+    // =========================================================================
+    function launchConfetti() {
+      const colors = ['#2563eb', '#ef4444', '#16a34a', '#f59e0b', '#8b5cf6'];
+      for (let i = 0; i < 40; i++) {
+        confetti.push({
+          x: canvas.width / 2 + (Math.random() * 160 - 80),
+          y: canvas.height * 0.4,
+          r: Math.random() * 6 + 3,
+          d: Math.random() * 20 + 10,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.random() * 10 - 5,
+          tiltAngle: 0,
+          tiltInc: Math.random() * 0.08 + 0.04,
+          vx: (Math.random() - 0.5) * 10,
+          vy: Math.random() * -8 - 3
+        });
+      }
+    }
+
+    function renderConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = confetti.length - 1; i >= 0; i--) {
+        const p = confetti[i];
+        p.tiltAngle += p.tiltInc;
+        p.y += (Math.cos(p.d) + 3 + p.r / 2) / 1.5;
+        p.x += Math.sin(p.d) + p.vx;
+        p.y += p.vy;
+        p.vy += 0.22;
+        p.vx *= 0.98;
+
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+        ctx.stroke();
+
+        if (p.y > canvas.height + 20) confetti.splice(i, 1);
+      }
+      requestAnimationFrame(renderConfetti);
+    }
+    requestAnimationFrame(renderConfetti);
+
+    // =========================================================================
+    // 🧠 GAME FLOW & RENDERING
+    // =========================================================================
+    function resetSlots() {
+      box1Slots = Array(10).fill(null);
+      box2Slots = Array(10).fill(null);
+
+      // Box 1 starts with numA blue pebbles
+      for (let i = 0; i < numA; i++) {
+        box1Slots[i] = { type: 'blue' };
+      }
+
+      // Box 2 starts with numB red pebbles
+      for (let j = 0; j < numB; j++) {
+        box2Slots[j] = { type: 'red' };
+      }
+    }
+
+    function loadQuestion() {
+      const q = getNextRandomQuestion();
+      numA = q.a;
+      numB = q.b;
+
+      numADisplay.textContent = numA;
+      numBDisplay.textContent = numB;
+      answerInput.value = '';
+      answerInput.disabled = false;
+      answerInput.className = 'answer-box';
+
+      btnCheck.disabled = false;
+      btnNext.classList.remove('show');
+
+      scoreDisplay.textContent = `⭐ ${score} / 10`;
+
+      resetSlots();
+      renderGrids();
+    }
+
+    function countPebbles(arr) {
+      return arr.filter(Boolean).length;
+    }
+
+    function renderGrids() {
+      renderBoxGrid(grid1, box1Slots, 1);
+      renderBoxGrid(grid2, box2Slots, 2);
+
+      // If either box reaches 10, focus answer box
+      if (countPebbles(box1Slots) === 10 || countPebbles(box2Slots) === 10) {
+        setTimeout(() => answerInput.focus(), 120);
+      }
+    }
+
+    function renderBoxGrid(gridEl, slotsArr, boxNum) {
+      gridEl.innerHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.dataset.box = String(boxNum);
+        slot.dataset.slot = String(i);
+
+        const item = slotsArr[i];
+        if (item) {
+          // Pebble present
+          const p = document.createElement('div');
+          p.className = `pebble pebble-${item.type} can-move`;
+          p.dataset.box = String(boxNum);
+          p.dataset.slot = String(i);
+
+          setupFreelyDraggablePebble(p, boxNum, i);
+          slot.appendChild(p);
+        } else {
+          // Empty slot (Drop target or tap target)
+          slot.classList.add('slot-empty');
+          slot.addEventListener('click', () => {
+            handleEmptySlotClick(boxNum, i);
+          });
+        }
+
+        gridEl.appendChild(slot);
+      }
+    }
+
+    // =========================================================================
+    // 🖐️ FULL FREELY DRAGGABLE SYSTEM (ANY PEBBLE FROM ANY GROUP)
+    // =========================================================================
+    function setupFreelyDraggablePebble(pebbleEl, fromBox, fromSlot) {
+      let startX = 0;
+      let startY = 0;
+      let isDragging = false;
+      let ghost = null;
+
+      pebbleEl.addEventListener('pointerdown', (e) => {
+        startX = e.clientX;
+        startY = e.clientY;
+        isDragging = false;
+
+        function onPointerMove(moveEvent) {
+          const dx = moveEvent.clientX - startX;
+          const dy = moveEvent.clientY - startY;
+
+          if (!isDragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+            isDragging = true;
+            ghost = pebbleEl.cloneNode(true);
+            ghost.className = pebbleEl.className + ' pebble-ghost';
+            ghost.style.left = moveEvent.clientX + 'px';
+            ghost.style.top = moveEvent.clientY + 'px';
+            document.body.appendChild(ghost);
+            pebbleEl.style.opacity = '0.25';
+          }
+
+          if (isDragging && ghost) {
+            ghost.style.left = moveEvent.clientX + 'px';
+            ghost.style.top = moveEvent.clientY + 'px';
+
+            clearSlotHighlights();
+            const elemBelow = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY);
+            const targetSlot = elemBelow ? elemBelow.closest('.slot') : null;
+            if (targetSlot) {
+              const targetBox = parseInt(targetSlot.dataset.box, 10);
+              const targetIdx = parseInt(targetSlot.dataset.slot, 10);
+              const targetArr = (targetBox === 1 ? box1Slots : box2Slots);
+              if (!targetArr[targetIdx]) {
+                targetSlot.classList.add('drag-over');
+              }
+            }
+          }
+        }
+
+        function onPointerUp(upEvent) {
+          window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('pointerup', onPointerUp);
+          window.removeEventListener('pointercancel', onPointerUp);
+
+          clearSlotHighlights();
+
+          if (isDragging) {
+            if (ghost) {
+              ghost.remove();
+              ghost = null;
+            }
+            pebbleEl.style.opacity = '1';
+
+            const elemBelow = document.elementFromPoint(upEvent.clientX, upEvent.clientY);
+            const targetSlot = elemBelow ? elemBelow.closest('.slot') : null;
+
+            if (targetSlot) {
+              const toBox = parseInt(targetSlot.dataset.box, 10);
+              const toSlot = parseInt(targetSlot.dataset.slot, 10);
+              const sourceArr = (fromBox === 1 ? box1Slots : box2Slots);
+              const targetArr = (toBox === 1 ? box1Slots : box2Slots);
+
+              // Move if destination slot is empty
+              if (!targetArr[toSlot]) {
+                const movingItem = sourceArr[fromSlot];
+                sourceArr[fromSlot] = null;
+                targetArr[toSlot] = movingItem;
+
+                playStonePlink();
+                checkCompletedTen();
+                renderGrids();
+              }
+            }
+          } else {
+            // Quick-tap: move pebble to the opposite group's first available empty slot
+            quickMoveToOppositeBox(fromBox, fromSlot);
+          }
+        }
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
+        window.addEventListener('pointercancel', onPointerUp);
+      });
+    }
+
+    // Tap on a pebble sends it to the opposite box if there's room
+    function quickMoveToOppositeBox(fromBox, fromSlot) {
+      const sourceArr = (fromBox === 1 ? box1Slots : box2Slots);
+      const targetArr = (fromBox === 1 ? box2Slots : box1Slots);
+
+      const firstEmptyIdx = targetArr.findIndex(slot => slot === null);
+      if (firstEmptyIdx !== -1) {
+        const item = sourceArr[fromSlot];
+        sourceArr[fromSlot] = null;
+        targetArr[firstEmptyIdx] = item;
+
+        playStonePlink();
+        checkCompletedTen();
+        renderGrids();
+      }
+    }
+
+    // Tap on an empty slot in boxNum pulls a pebble from the opposite group
+    function handleEmptySlotClick(boxNum, slotIdx) {
+      const targetArr = (boxNum === 1 ? box1Slots : box2Slots);
+      const sourceArr = (boxNum === 1 ? box2Slots : box1Slots);
+
+      // Find last pebble in sourceArr to pull
+      let lastPebbleIdx = -1;
+      for (let i = sourceArr.length - 1; i >= 0; i--) {
+        if (sourceArr[i] !== null) {
+          lastPebbleIdx = i;
+          break;
+        }
+      }
+
+      if (lastPebbleIdx !== -1 && !targetArr[slotIdx]) {
+        targetArr[slotIdx] = sourceArr[lastPebbleIdx];
+        sourceArr[lastPebbleIdx] = null;
+
+        playStonePlink();
+        checkCompletedTen();
+        renderGrids();
+      }
+    }
+
+    function checkCompletedTen() {
+      if (countPebbles(box1Slots) === 10 || countPebbles(box2Slots) === 10) {
+        playTenFullChime();
+      }
+    }
+
+    function clearSlotHighlights() {
+      document.querySelectorAll('.slot.drag-over').forEach(el => el.classList.remove('drag-over'));
+    }
+
+    // =========================================================================
+    // 🔘 ANSWER CHECKING & CONTROLS
+    // =========================================================================
+    function checkAnswer() {
+      initAudio();
+      const val = answerInput.value.trim();
+      const correctAns = numA + numB;
+
+      if (!val) {
+        answerInput.focus();
+        return;
+      }
+
+      if (parseInt(val, 10) === correctAns) {
+        score++;
+        playWinSound();
+        launchConfetti();
+        answerInput.classList.add('correct');
+        scoreDisplay.textContent = `⭐ ${score} / 10`;
+
+        btnCheck.disabled = true;
+        answerInput.disabled = true;
+        btnNext.classList.add('show');
+      } else {
+        playWrongSound();
+        answerInput.classList.add('wrong');
+        // Auto fill 10 if not done yet
+        autoMakeTen();
+      }
+    }
+
+    function autoMakeTen() {
+      // Moves enough red pebbles to complete 10 in box 1
+      const count1 = countPebbles(box1Slots);
+      if (count1 < 10) {
+        const needed = 10 - count1;
+        let moved = 0;
+        for (let j = box2Slots.length - 1; j >= 0; j--) {
+          if (box2Slots[j] && moved < needed) {
+            const emptyIdx = box1Slots.findIndex(s => s === null);
+            if (emptyIdx !== -1) {
+              box1Slots[emptyIdx] = box2Slots[j];
+              box2Slots[j] = null;
+              moved++;
+            }
+          }
+        }
+        playTenFullChime();
+        renderGrids();
+      }
+    }
+
+    btnCheck.addEventListener('click', checkAnswer);
+
+    answerInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    btnNext.addEventListener('click', () => {
+      initAudio();
+      loadQuestion();
+    });
+
+    btnAuto.addEventListener('click', () => {
+      initAudio();
+      autoMakeTen();
+    });
+
+    btnReset.addEventListener('click', () => {
+      initAudio();
+      resetSlots();
+      renderGrids();
+    });
+
+    soundToggle.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+      if (soundEnabled) initAudio();
+    });
+
+    // Start on load
+    window.addEventListener('DOMContentLoaded', loadQuestion);
+  </script>
+</body>
+</html>
