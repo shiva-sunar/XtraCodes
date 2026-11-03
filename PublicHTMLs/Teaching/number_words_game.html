@@ -3,22 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Number to Words 🔤 Learn Numbers in Words</title>
+  <title>Number to Words 🔤</title>
   <style>
     :root {
-      --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fdf4ff 100%);
-      --card-bg: rgba(255, 255, 255, 0.98);
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: #ffffff;
       --text: #0f172a;
       --text-muted: #64748b;
       --primary: #4f46e5;
-      --primary-dark: #3730a3;
-      --accent: #0ea5e9;
       --correct: #16a34a;
       --wrong: #dc2626;
-      --th-color: #7c3aed;
-      --h-color: #2563eb;
-      --tens-color: #ea580c;
-      --ones-color: #059669;
+
+      /* High-contrast category colors */
+      --color-scale-bg: #f5f3ff;
+      --color-scale-border: #8b5cf6;
+      --color-scale-text: #5b21b6;
+
+      --color-tens-bg: #fff7ed;
+      --color-tens-border: #f97316;
+      --color-tens-text: #9a3412;
+
+      --color-teens-bg: #f0fdf4;
+      --color-teens-border: #22c55e;
+      --color-teens-text: #166534;
+
+      --color-units-bg: #f0f9ff;
+      --color-units-border: #0284c7;
+      --color-units-text: #075985;
+
       --radius: 24px;
     }
 
@@ -46,16 +58,15 @@
 
     .app-card {
       width: 100%;
-      max-width: 500px;
+      max-width: 440px;
       background: var(--card-bg);
       border-radius: var(--radius);
-      box-shadow: 0 16px 40px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
       padding: 16px 14px;
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
-      border: 3px solid #ffffff;
     }
 
     /* Top Bar */
@@ -64,113 +75,62 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .score-badge {
-      background: #f1f5f9;
-      padding: 4px 12px;
-      border-radius: 999px;
-      font-weight: 800;
       font-size: 0.88rem;
+      font-weight: 800;
       color: #334155;
+      background: #f1f5f9;
+      padding: 3px 10px;
+      border-radius: 999px;
     }
 
     .sound-toggle {
       background: transparent;
       border: none;
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       cursor: pointer;
-      padding: 4px;
+      padding: 2px;
       line-height: 1;
     }
 
-    /* Mode Selector Pill Tabs */
-    .mode-selector {
+    /* Minimal Top Number Banner (ONLY the number) */
+    .number-hero {
       width: 100%;
-      display: flex;
-      background: #f1f5f9;
-      padding: 4px;
-      border-radius: 14px;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-
-    .mode-btn {
-      flex: 1;
-      padding: 8px 6px;
-      border: none;
-      background: transparent;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 0.85rem;
-      color: #64748b;
-      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-      font-family: inherit;
-    }
-
-    .mode-btn.active {
-      background: #ffffff;
-      color: var(--primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Question Banner */
-    .question-banner {
-      width: 100%;
-      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-      border: 2px dashed #cbd5e1;
-      border-radius: 18px;
-      padding: 14px 12px;
-      text-align: center;
-      margin-bottom: 12px;
-      position: relative;
-    }
-
-    .question-title {
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .question-prompt-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
+      gap: 10px;
+      padding: 6px 0 12px 0;
     }
 
     .big-number {
-      font-size: 2.5rem;
+      font-size: 2.7rem;
       font-weight: 900;
-      color: #1e1b4b;
+      color: #0f172a;
       letter-spacing: 1px;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
     }
 
     .big-words {
       font-size: 1.35rem;
-      font-weight: 800;
-      color: #1e1b4b;
-      line-height: 1.35;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.3;
+      text-align: center;
       text-transform: capitalize;
     }
 
     .speak-btn {
-      background: #e0e7ff;
-      border: 1.5px solid #c7d2fe;
-      color: var(--primary);
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      color: #475569;
       border-radius: 50%;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       font-size: 1.1rem;
       display: inline-flex;
       align-items: center;
@@ -182,39 +142,15 @@
 
     .speak-btn:active {
       transform: scale(0.92);
-      background: #c7d2fe;
+      background: #e2e8f0;
     }
 
-    /* Place Value Breakdown Chips */
-    .place-value-pills {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 5px;
-      margin-top: 8px;
-    }
-
-    .pv-pill {
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 1.5px solid #cbd5e1;
-      color: #475569;
-    }
-
-    .pv-pill.th { border-color: #ddd6fe; color: var(--th-color); background: #f5f3ff; }
-    .pv-pill.h  { border-color: #bfdbfe; color: var(--h-color); background: #eff6ff; }
-    .pv-pill.t  { border-color: #fed7aa; color: var(--tens-color); background: #fff7ed; }
-    .pv-pill.o  { border-color: #a7f3d0; color: var(--ones-color); background: #ecfdf5; }
-
-    /* Builder Input Box for Number-to-Words Mode */
+    /* Sentence Builder Box */
     .sentence-builder-box {
       width: 100%;
-      min-height: 62px;
+      min-height: 56px;
       background: #ffffff;
-      border: 2.5px solid var(--primary);
+      border: 2.5px solid #0f172a;
       border-radius: 16px;
       padding: 8px 10px;
       display: flex;
@@ -222,11 +158,9 @@
       align-items: center;
       align-content: flex-start;
       gap: 6px;
-      margin-bottom: 10px;
-      position: relative;
+      margin-bottom: 6px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
     }
 
     .sentence-placeholder {
@@ -234,30 +168,51 @@
       font-size: 0.95rem;
       font-weight: 700;
       pointer-events: none;
-      padding: 4px;
+      padding: 2px 4px;
     }
 
-    /* Word Chips inside the builder */
+    /* Word Chips inside Sentence Builder */
     .word-chip {
-      background: #eef2ff;
-      border: 1.5px solid #c7d2fe;
-      color: #3730a3;
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 10px;
       font-weight: 800;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       display: inline-flex;
       align-items: center;
       gap: 5px;
       cursor: pointer;
       transition: all 0.15s ease;
-      animation: chipPop 0.18s ease;
+      animation: chipPop 0.15s ease;
+    }
+
+    .word-chip.chip-scale {
+      background: var(--color-scale-bg);
+      border: 1.5px solid var(--color-scale-border);
+      color: var(--color-scale-text);
+    }
+
+    .word-chip.chip-tens {
+      background: var(--color-tens-bg);
+      border: 1.5px solid var(--color-tens-border);
+      color: var(--color-tens-text);
+    }
+
+    .word-chip.chip-teens {
+      background: var(--color-teens-bg);
+      border: 1.5px solid var(--color-teens-border);
+      color: var(--color-teens-text);
+    }
+
+    .word-chip.chip-units {
+      background: var(--color-units-bg);
+      border: 1.5px solid var(--color-units-border);
+      color: var(--color-units-text);
     }
 
     .word-chip:hover {
-      background: #fee2e2;
-      border-color: #fca5a5;
-      color: #991b1b;
+      background: #fee2e2 !important;
+      border-color: #fca5a5 !important;
+      color: #991b1b !important;
     }
 
     .word-chip .chip-remove {
@@ -267,109 +222,136 @@
 
     @keyframes chipPop {
       0% { transform: scale(0.85); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1); }
     }
 
-    /* Builder Actions Row (Backspace & Clear) */
-    .builder-actions-row {
+    /* Small Editing Actions */
+    .builder-tools-row {
       width: 100%;
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 10px;
     }
 
-    .small-tool-btn {
+    .tool-btn {
       background: #f1f5f9;
       border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 5px 12px;
-      font-size: 0.85rem;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
       font-weight: 800;
       color: #475569;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
       font-family: inherit;
     }
 
-    .small-tool-btn:active {
+    .tool-btn:active {
       transform: scale(0.95);
       background: #e2e8f0;
     }
 
-    /* Word Bank Keyboard (Category based) */
+    /* Word Bank (High-contrast Color Groups) */
     .word-bank {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 12px;
     }
 
-    .word-bank-row {
-      display: flex;
-      flex-wrap: wrap;
+    .word-grid-3 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 0.8fr;
       gap: 5px;
-      justify-content: center;
+      width: 100%;
     }
 
-    .word-bank-btn {
-      background: #ffffff;
-      border: 2px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 8px 11px;
-      font-size: 0.92rem;
+    .word-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      width: 100%;
+    }
+
+    .word-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      width: 100%;
+    }
+
+    .word-btn {
+      height: 42px;
+      border-radius: 10px;
+      font-size: 0.88rem;
       font-weight: 800;
-      color: #1e293b;
       cursor: pointer;
       font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.1s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-      flex-grow: 1;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      padding: 0 4px;
       text-align: center;
-      max-width: calc(33.33% - 4px);
     }
 
-    .word-bank-btn:active {
+    .word-btn:active {
       transform: translateY(2px) scale(0.96);
       box-shadow: none;
     }
 
-    /* Big Place Value Highlights */
-    .btn-key-pv {
-      background: #ede9fe;
-      border-color: #8b5cf6;
-      color: #5b21b6;
+    /* 🟣 Category 1: Scale (Place Values) */
+    .btn-scale {
+      background: var(--color-scale-bg);
+      border: 2px solid var(--color-scale-border);
+      color: var(--color-scale-text);
+      font-size: 0.94rem;
       font-weight: 900;
-      font-size: 1rem;
+    }
+    .btn-scale:active {
+      background: #ede9fe;
     }
 
-    .btn-key-pv:active {
-      background: #ddd6fe;
+    /* 🟠 Category 2: Tens */
+    .btn-tens {
+      background: var(--color-tens-bg);
+      border: 2px solid var(--color-tens-border);
+      color: var(--color-tens-text);
+    }
+    .btn-tens:active {
+      background: #fed7aa;
     }
 
-    .btn-key-tens {
-      background: #fff7ed;
-      border-color: #fdba74;
-      color: #9a3412;
+    /* 🟢 Category 3: Teens */
+    .btn-teens {
+      background: var(--color-teens-bg);
+      border: 2px solid var(--color-teens-border);
+      color: var(--color-teens-text);
+    }
+    .btn-teens:active {
+      background: #bbf7d0;
     }
 
-    .btn-key-units {
-      background: #f8fafc;
-      border-color: #cbd5e1;
-      color: #1e293b;
+    /* 🔵 Category 4: Units */
+    .btn-units {
+      background: var(--color-units-bg);
+      border: 2px solid var(--color-units-border);
+      color: var(--color-units-text);
+    }
+    .btn-units:active {
+      background: #bae6fd;
     }
 
-    /* Input Box for Words-to-Number Mode */
+    /* Words-to-Number Input Mode */
     .digits-input-wrapper {
       width: 100%;
       display: none;
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .digits-input-wrapper.show {
@@ -378,25 +360,26 @@
 
     .number-answer-input {
       width: 100%;
-      max-width: 240px;
-      height: 56px;
+      max-width: 220px;
+      height: 52px;
       background: #ffffff;
-      border: 3.5px solid var(--primary);
-      border-radius: 16px;
-      font-size: 2.2rem;
+      border: 3px solid #0f172a;
+      border-radius: 14px;
+      font-size: 2rem;
       font-weight: 900;
       text-align: center;
-      color: #1e1b4b;
+      color: #0f172a;
       outline: none;
       caret-color: var(--primary);
       font-family: inherit;
       letter-spacing: 2px;
       transition: all 0.15s ease;
+      font-variant-numeric: tabular-nums;
     }
 
     .number-answer-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
     }
 
     .number-answer-input.correct {
@@ -412,55 +395,43 @@
       animation: shake 0.4s ease;
     }
 
-    /* Feedback & Explanation Card */
+    /* Explanation Card */
     .explanation-card {
       display: none;
       width: 100%;
       background: #fffbeb;
       border: 2px solid #fde68a;
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      animation: popIn 0.25s ease;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #92400e;
+      line-height: 1.4;
+      text-align: center;
     }
 
     .explanation-card.show {
       display: block;
+      animation: popIn 0.2s ease;
     }
 
-    .exp-title {
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: #92400e;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .exp-body {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #78350f;
-      line-height: 1.4;
-    }
-
-    /* Action Buttons (Check & Next) */
+    /* Action Buttons */
     .btn-main {
       width: 100%;
-      height: 50px;
+      height: 48px;
       background: #0f172a;
       color: #ffffff;
       border: none;
       border-bottom: 4px solid #000000;
-      border-radius: 14px;
-      font-size: 1.2rem;
+      border-radius: 12px;
+      font-size: 1.15rem;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       font-family: inherit;
       transition: all 0.1s ease;
     }
@@ -473,32 +444,32 @@
     .btn-next {
       display: none;
       width: 100%;
-      height: 50px;
-      background: linear-gradient(135deg, #16a34a, #15803d);
+      height: 48px;
+      background: #16a34a;
       color: #ffffff;
       border: none;
-      border-bottom: 4px solid #166534;
-      border-radius: 14px;
-      font-size: 1.2rem;
+      border-bottom: 4px solid #15803d;
+      border-radius: 12px;
+      font-size: 1.15rem;
       font-weight: 800;
       cursor: pointer;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       margin-top: 8px;
-      animation: popIn 0.25s ease;
+      animation: popIn 0.2s ease;
     }
 
     .btn-next.show {
       display: flex;
     }
 
-    /* Range Selector in Collapsible Details at Bottom */
+    /* Collapsible Settings Drawer at Bottom */
     .settings-drawer {
       width: 100%;
       margin-top: 14px;
       border-top: 1.5px dashed #cbd5e1;
-      padding-top: 10px;
+      padding-top: 8px;
     }
 
     .settings-summary {
@@ -517,19 +488,64 @@
       display: none;
     }
 
+    .settings-content {
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .setting-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-selector {
+      width: 100%;
+      display: flex;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 7px 4px;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+    }
+
+    .mode-btn.active {
+      background: #ffffff;
+      color: #4f46e5;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
     .range-selector-row {
       display: flex;
-      gap: 6px;
-      margin-top: 8px;
+      gap: 5px;
     }
 
     .range-chip {
       flex: 1;
-      padding: 6px 4px;
+      padding: 6px 2px;
       border: 1.5px solid #cbd5e1;
       background: #ffffff;
-      border-radius: 10px;
-      font-size: 0.8rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
       font-weight: 800;
       color: #475569;
       cursor: pointer;
@@ -538,9 +554,9 @@
     }
 
     .range-chip.active {
-      border-color: var(--primary);
+      border-color: #4f46e5;
       background: #eef2ff;
-      color: var(--primary-dark);
+      color: #4338ca;
     }
 
     #confetti-canvas {
@@ -577,128 +593,117 @@
       <button class="sound-toggle" id="sound-btn" title="Toggle Sound">🔊</button>
     </div>
 
-    <!-- Mode Selector Tabs -->
-    <div class="mode-selector">
-      <button class="mode-btn active" id="mode-num-to-words">
-        <span>🔢 ➔ 🔤 Number to Words</span>
-      </button>
-      <button class="mode-btn" id="mode-words-to-num">
-        <span>🔤 ➔ 🔢 Words to Number</span>
-      </button>
+    <!-- Minimal Question Hero: ONLY the number or words at top -->
+    <div class="number-hero">
+      <span class="big-number" id="target-display">12,345</span>
+      <button class="speak-btn" id="speak-btn" title="Pronounce">🗣️</button>
     </div>
 
-    <!-- Question Banner -->
-    <div class="question-banner">
-      <div class="question-title" id="question-header">Spell this number in words:</div>
-      <div class="question-prompt-row">
-        <span class="big-number" id="target-number-display">12,345</span>
-        <button class="speak-btn" id="speak-question-btn" title="Listen to pronunciation">🗣️</button>
-      </div>
-      <!-- Place Value Breakdown Pills -->
-      <div class="place-value-pills" id="place-value-pills">
-        <!-- Rendered dynamically -->
-      </div>
-    </div>
-
-    <!-- MODE 1: Number to Words (Tap Chips to Build) -->
+    <!-- Number to Words Mode (Word Bank with High Contrast Categories) -->
     <div id="section-num-to-words" style="width: 100%;">
       <!-- Assembled Sentence Box -->
-      <div class="sentence-builder-box" id="sentence-builder-box" title="Tap any word to remove it">
-        <span class="sentence-placeholder" id="sentence-placeholder">Tap words below to build the sentence...</span>
+      <div class="sentence-builder-box" id="sentence-builder-box" title="Tap any word to remove">
+        <span class="sentence-placeholder" id="sentence-placeholder">Tap words below...</span>
       </div>
 
-      <!-- Quick Word Bank Action Row -->
-      <div class="builder-actions-row">
-        <button class="small-tool-btn" id="btn-backspace">⌫ Backspace</button>
-        <button class="small-tool-btn" id="btn-clear-words">🗑️ Clear</button>
+      <!-- Quick Backspace & Clear Tools -->
+      <div class="builder-tools-row">
+        <button class="tool-btn" id="btn-backspace">⌫ Backspace</button>
+        <button class="tool-btn" id="btn-clear">🗑️ Clear</button>
       </div>
 
-      <!-- Word Bank (Tap words to enter without typing) -->
-      <div class="word-bank" id="word-bank">
-        <!-- Place Value Units (Thousand, Hundred) -->
-        <div class="word-bank-row">
-          <button class="word-bank-btn btn-key-pv" data-word="thousand">thousand</button>
-          <button class="word-bank-btn btn-key-pv" data-word="hundred">hundred</button>
-          <button class="word-bank-btn" data-word="and" style="background:#f1f5f9; color:#475569;">and</button>
+      <!-- High-Contrast Word Bank -->
+      <div class="word-bank">
+        <!-- 🟣 Scale / Place Values (Purple) -->
+        <div class="word-grid-3">
+          <button class="word-btn btn-scale" data-word="thousand" data-group="scale">thousand</button>
+          <button class="word-btn btn-scale" data-word="hundred" data-group="scale">hundred</button>
+          <button class="word-btn btn-scale" data-word="and" data-group="scale">and</button>
         </div>
 
-        <!-- Tens -->
-        <div class="word-bank-row">
-          <button class="word-bank-btn btn-key-tens" data-word="twenty">twenty</button>
-          <button class="word-bank-btn btn-key-tens" data-word="thirty">thirty</button>
-          <button class="word-bank-btn btn-key-tens" data-word="forty">forty</button>
-          <button class="word-bank-btn btn-key-tens" data-word="fifty">fifty</button>
+        <!-- 🟠 Tens (Warm Orange) -->
+        <div class="word-grid-4">
+          <button class="word-btn btn-tens" data-word="twenty" data-group="tens">twenty</button>
+          <button class="word-btn btn-tens" data-word="thirty" data-group="tens">thirty</button>
+          <button class="word-btn btn-tens" data-word="forty" data-group="tens">forty</button>
+          <button class="word-btn btn-tens" data-word="fifty" data-group="tens">fifty</button>
         </div>
-        <div class="word-bank-row">
-          <button class="word-bank-btn btn-key-tens" data-word="sixty">sixty</button>
-          <button class="word-bank-btn btn-key-tens" data-word="seventy">seventy</button>
-          <button class="word-bank-btn btn-key-tens" data-word="eighty">eighty</button>
-          <button class="word-bank-btn btn-key-tens" data-word="ninety">ninety</button>
-        </div>
-
-        <!-- Teens -->
-        <div class="word-bank-row">
-          <button class="word-bank-btn" data-word="ten">ten</button>
-          <button class="word-bank-btn" data-word="eleven">eleven</button>
-          <button class="word-bank-btn" data-word="twelve">twelve</button>
-          <button class="word-bank-btn" data-word="thirteen">thirteen</button>
-        </div>
-        <div class="word-bank-row">
-          <button class="word-bank-btn" data-word="fourteen">fourteen</button>
-          <button class="word-bank-btn" data-word="fifteen">fifteen</button>
-          <button class="word-bank-btn" data-word="sixteen">sixteen</button>
-          <button class="word-bank-btn" data-word="seventeen">seventeen</button>
-        </div>
-        <div class="word-bank-row">
-          <button class="word-bank-btn" data-word="eighteen">eighteen</button>
-          <button class="word-bank-btn" data-word="nineteen">nineteen</button>
+        <div class="word-grid-4">
+          <button class="word-btn btn-tens" data-word="sixty" data-group="tens">sixty</button>
+          <button class="word-btn btn-tens" data-word="seventy" data-group="tens">seventy</button>
+          <button class="word-btn btn-tens" data-word="eighty" data-group="tens">eighty</button>
+          <button class="word-btn btn-tens" data-word="ninety" data-group="tens">ninety</button>
         </div>
 
-        <!-- Units (1 - 9) -->
-        <div class="word-bank-row">
-          <button class="word-bank-btn btn-key-units" data-word="one">one</button>
-          <button class="word-bank-btn btn-key-units" data-word="two">two</button>
-          <button class="word-bank-btn btn-key-units" data-word="three">three</button>
-          <button class="word-bank-btn btn-key-units" data-word="four">four</button>
-          <button class="word-bank-btn btn-key-units" data-word="five">five</button>
+        <!-- 🟢 Teens (Emerald Green) -->
+        <div class="word-grid-4">
+          <button class="word-btn btn-teens" data-word="ten" data-group="teens">ten</button>
+          <button class="word-btn btn-teens" data-word="eleven" data-group="teens">eleven</button>
+          <button class="word-btn btn-teens" data-word="twelve" data-group="teens">twelve</button>
+          <button class="word-btn btn-teens" data-word="thirteen" data-group="teens">thirteen</button>
         </div>
-        <div class="word-bank-row">
-          <button class="word-bank-btn btn-key-units" data-word="six">six</button>
-          <button class="word-bank-btn btn-key-units" data-word="seven">seven</button>
-          <button class="word-bank-btn btn-key-units" data-word="eight">eight</button>
-          <button class="word-bank-btn btn-key-units" data-word="nine">nine</button>
-          <button class="word-bank-btn btn-key-units" data-word="zero">zero</button>
+        <div class="word-grid-3">
+          <button class="word-btn btn-teens" data-word="fourteen" data-group="teens">fourteen</button>
+          <button class="word-btn btn-teens" data-word="fifteen" data-group="teens">fifteen</button>
+          <button class="word-btn btn-teens" data-word="sixteen" data-group="teens">sixteen</button>
+        </div>
+        <div class="word-grid-3">
+          <button class="word-btn btn-teens" data-word="seventeen" data-group="teens">seventeen</button>
+          <button class="word-btn btn-teens" data-word="eighteen" data-group="teens">eighteen</button>
+          <button class="word-btn btn-teens" data-word="nineteen" data-group="teens">nineteen</button>
+        </div>
+
+        <!-- 🔵 Units (Sky Blue) -->
+        <div class="word-grid-5">
+          <button class="word-btn btn-units" data-word="one" data-group="units">one</button>
+          <button class="word-btn btn-units" data-word="two" data-group="units">two</button>
+          <button class="word-btn btn-units" data-word="three" data-group="units">three</button>
+          <button class="word-btn btn-units" data-word="four" data-group="units">four</button>
+          <button class="word-btn btn-units" data-word="five" data-group="units">five</button>
+        </div>
+        <div class="word-grid-5">
+          <button class="word-btn btn-units" data-word="six" data-group="units">six</button>
+          <button class="word-btn btn-units" data-word="seven" data-group="units">seven</button>
+          <button class="word-btn btn-units" data-word="eight" data-group="units">eight</button>
+          <button class="word-btn btn-units" data-word="nine" data-group="units">nine</button>
+          <button class="word-btn btn-units" data-word="zero" data-group="units">zero</button>
         </div>
       </div>
     </div>
 
-    <!-- MODE 2: Words to Number -->
+    <!-- Words to Number Mode -->
     <div class="digits-input-wrapper" id="section-words-to-num">
-      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+      <input type="text" lang="en" inputmode="numeric" pattern="[0-9]*" maxlength="6"
              class="number-answer-input" id="number-answer-input"
              placeholder="12345" autocomplete="off" />
     </div>
 
-    <!-- Explanation / Correction Card (Shows on Wrong) -->
-    <div class="explanation-card" id="explanation-card">
-      <div class="exp-title">💡 Answer Explanation:</div>
-      <div class="exp-body" id="explanation-body"></div>
-    </div>
+    <!-- Explanation Card (Shown on wrong) -->
+    <div class="explanation-card" id="explanation-card"></div>
 
-    <!-- Submit Action Button -->
-    <button class="btn-main" id="btn-check">Check Answer</button>
+    <!-- Action Buttons -->
+    <button class="btn-main" id="btn-check">Check</button>
+    <button class="btn-next" id="btn-next">Next ➔</button>
 
-    <!-- Next Question Button -->
-    <button class="btn-next" id="btn-next">Next Question ➔</button>
+    <!-- Collapsible Options at Bottom -->
+    <details class="settings-drawer" id="settings-drawer">
+      <summary class="settings-summary">⚙️ Options</summary>
+      <div class="settings-content">
+        <!-- Mode Switcher -->
+        <div class="setting-label">Mode:</div>
+        <div class="mode-selector">
+          <button class="mode-btn active" id="mode-num-to-words">123 ➔ Words</button>
+          <button class="mode-btn" id="mode-words-to-num">Words ➔ 123</button>
+        </div>
 
-    <!-- Settings: Number Range Selection -->
-    <details class="settings-drawer">
-      <summary class="settings-summary">⚙️ Choose Number Range</summary>
-      <div class="range-selector-row">
-        <div class="range-chip" data-max="99">1 - 99</div>
-        <div class="range-chip" data-max="999">100 - 999</div>
-        <div class="range-chip" data-max="9999">1,000 - 9,999</div>
-        <div class="range-chip active" data-max="99999">10,000 - 99,999</div>
+        <!-- Range Selector -->
+        <div class="setting-label">Range:</div>
+        <div class="range-selector-row">
+          <div class="range-chip" data-max="99">1 - 99</div>
+          <div class="range-chip" data-max="999">100 - 999</div>
+          <div class="range-chip" data-max="9999">1K - 9.9K</div>
+          <div class="range-chip active" data-max="99999">10K - 99.9K</div>
+        </div>
       </div>
     </details>
 
@@ -706,8 +711,13 @@
 
   <script>
     // =========================================================================
-    // 🔤 NUMBER TO WORDS CONVERTER UTILITIES
+    // 🔤 NUMBER FORMATTER (FORCES ENGLISH WESTERN ARABIC DIGITS 0-9)
     // =========================================================================
+    function formatEnglish(n) {
+      // 'en-US' explicitly forces Western Arabic digits: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+      return Number(n).toLocaleString('en-US');
+    }
+
     const ONES = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
     const TEENS = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
     const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
@@ -754,7 +764,6 @@
       return result.trim();
     }
 
-    // Clean a string for comparison (removes hyphens, punctuation, extra spaces, 'and')
     function normalizeWords(text) {
       return text
         .toLowerCase()
@@ -765,24 +774,30 @@
         .trim();
     }
 
+    function getWordGroup(word) {
+      const scale = ['thousand', 'hundred', 'and'];
+      const tens = ['twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+      const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+      if (scale.includes(word)) return 'scale';
+      if (tens.includes(word)) return 'tens';
+      if (teens.includes(word)) return 'teens';
+      return 'units';
+    }
+
     // =========================================================================
     // ⚙️ APP STATE
     // =========================================================================
-    let currentMode = 'numToWords'; // 'numToWords' or 'wordsToNum'
+    let currentMode = 'numToWords';
     let maxRange = 99999;
     let currentNumber = 12345;
     let currentWords = 'twelve thousand three hundred forty five';
-    let chosenWordsList = [];
+    let chosenWordsList = []; // array of { word, group }
     let score = 0;
     let soundEnabled = true;
 
     // DOM Elements
-    const modeNumToWords = document.getElementById('mode-num-to-words');
-    const modeWordsToNum = document.getElementById('mode-words-to-num');
-    const questionHeader = document.getElementById('question-header');
-    const targetNumberDisplay = document.getElementById('target-number-display');
-    const speakQuestionBtn = document.getElementById('speak-question-btn');
-    const placeValuePills = document.getElementById('place-value-pills');
+    const targetDisplay = document.getElementById('target-display');
+    const speakBtn = document.getElementById('speak-btn');
     const sectionNumToWords = document.getElementById('section-num-to-words');
     const sectionWordsToNum = document.getElementById('section-words-to-num');
     const sentenceBuilderBox = document.getElementById('sentence-builder-box');
@@ -791,11 +806,12 @@
     const btnCheck = document.getElementById('btn-check');
     const btnNext = document.getElementById('btn-next');
     const btnBackspace = document.getElementById('btn-backspace');
-    const btnClearWords = document.getElementById('btn-clear-words');
+    const btnClear = document.getElementById('btn-clear');
     const explanationCard = document.getElementById('explanation-card');
-    const explanationBody = document.getElementById('explanation-body');
     const scoreDisplay = document.getElementById('score-display');
     const soundBtn = document.getElementById('sound-btn');
+    const modeNumToWords = document.getElementById('mode-num-to-words');
+    const modeWordsToNum = document.getElementById('mode-words-to-num');
 
     // Confetti
     const canvas = document.getElementById('confetti-canvas');
@@ -810,7 +826,7 @@
     resizeCanvas();
 
     // =========================================================================
-    // 🔊 AUDIO SYNTHESIS & SPEECH
+    // 🔊 AUDIO & SPEECH
     // =========================================================================
     let audioCtx = null;
     function initAudio() {
@@ -841,7 +857,7 @@
 
     function playPop() {
       initAudio();
-      playTone(600 + Math.random() * 80, 0.05, 'triangle', 0.2);
+      playTone(650 + Math.random() * 80, 0.05, 'triangle', 0.2);
     }
 
     function playWinSound() {
@@ -870,7 +886,7 @@
     // 🎊 CONFETTI
     // =========================================================================
     function launchConfetti() {
-      const colors = ['#4f46e5', '#0ea5e9', '#16a34a', '#ea580c', '#ec4899'];
+      const colors = ['#8b5cf6', '#f97316', '#22c55e', '#0284c7', '#ec4899'];
       for (let i = 0; i < 40; i++) {
         confetti.push({
           x: canvas.width / 2 + (Math.random() * 160 - 80),
@@ -912,7 +928,7 @@
     requestAnimationFrame(renderConfetti);
 
     // =========================================================================
-    // 🧠 QUESTION GENERATION & FLOW
+    // 🧠 QUESTION GENERATION
     // =========================================================================
     function generateRandomNumber() {
       if (maxRange === 99) {
@@ -922,8 +938,7 @@
       } else if (maxRange === 9999) {
         return Math.floor(Math.random() * 9000) + 1000; // 1,000 - 9,999
       } else {
-        // 10,000 - 99,999 (e.g. 12345)
-        return Math.floor(Math.random() * 90000) + 10000;
+        return Math.floor(Math.random() * 90000) + 10000; // 10,000 - 99,999
       }
     }
 
@@ -936,27 +951,21 @@
       btnNext.classList.remove('show');
       btnCheck.disabled = false;
 
-      // Update Place Value breakdown pills
-      renderPlaceValuePills();
-
       if (currentMode === 'numToWords') {
-        // Mode 1: Show Number -> Construct Words
         sectionNumToWords.style.display = 'block';
         sectionWordsToNum.classList.remove('show');
 
-        questionHeader.textContent = 'Spell this number in words:';
-        targetNumberDisplay.className = 'big-number';
-        targetNumberDisplay.textContent = currentNumber.toLocaleString();
+        targetDisplay.className = 'big-number';
+        // Always format with English Western Arabic digits 0-9
+        targetDisplay.textContent = formatEnglish(currentNumber);
 
         renderSentenceChips();
       } else {
-        // Mode 2: Show Words -> Enter Number
         sectionNumToWords.style.display = 'none';
         sectionWordsToNum.classList.add('show');
 
-        questionHeader.textContent = 'Write this in numbers:';
-        targetNumberDisplay.className = 'big-words';
-        targetNumberDisplay.textContent = currentWords;
+        targetDisplay.className = 'big-words';
+        targetDisplay.textContent = currentWords;
 
         numberAnswerInput.value = '';
         numberAnswerInput.disabled = false;
@@ -965,38 +974,7 @@
       }
     }
 
-    // Render place value pills (e.g. 12,345 -> 10,000 + 2,000 + 300 + 40 + 5)
-    function renderPlaceValuePills() {
-      placeValuePills.innerHTML = '';
-      const str = String(currentNumber);
-      const len = str.length;
-
-      for (let i = 0; i < len; i++) {
-        const digit = parseInt(str[i], 10);
-        if (digit === 0) continue;
-
-        const place = len - 1 - i;
-        const val = digit * Math.pow(10, place);
-
-        const pill = document.createElement('span');
-        pill.className = 'pv-pill';
-
-        if (place >= 3) {
-          pill.classList.add('th');
-        } else if (place === 2) {
-          pill.classList.add('h');
-        } else if (place === 1) {
-          pill.classList.add('t');
-        } else {
-          pill.classList.add('o');
-        }
-
-        pill.textContent = `${val.toLocaleString()}`;
-        placeValuePills.appendChild(pill);
-      }
-    }
-
-    // Sentence builder chip rendering
+    // Render word chips with their group colors
     function renderSentenceChips() {
       sentenceBuilderBox.innerHTML = '';
 
@@ -1005,10 +983,10 @@
         return;
       }
 
-      chosenWordsList.forEach((word, idx) => {
+      chosenWordsList.forEach((item, idx) => {
         const chip = document.createElement('span');
-        chip.className = 'word-chip';
-        chip.innerHTML = `<span>${word}</span><span class="chip-remove">✕</span>`;
+        chip.className = `word-chip chip-${item.group}`;
+        chip.innerHTML = `<span>${item.word}</span><span class="chip-remove">✕</span>`;
         chip.title = 'Tap to remove';
         chip.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1018,8 +996,8 @@
       });
     }
 
-    function addWord(word) {
-      chosenWordsList.push(word);
+    function addWord(word, group) {
+      chosenWordsList.push({ word, group });
       playPop();
       renderSentenceChips();
     }
@@ -1051,7 +1029,7 @@
       initAudio();
 
       if (currentMode === 'numToWords') {
-        const userSentence = chosenWordsList.join(' ');
+        const userSentence = chosenWordsList.map(item => item.word).join(' ');
         if (!userSentence) return;
 
         const normUser = normalizeWords(userSentence);
@@ -1063,7 +1041,8 @@
           handleWrong(currentWords);
         }
       } else {
-        const val = numberAnswerInput.value.replace(/,/g, '').trim();
+        // Remove commas and spaces
+        const val = numberAnswerInput.value.replace(/[, ]/g, '').trim();
         if (!val) {
           numberAnswerInput.focus();
           return;
@@ -1073,7 +1052,7 @@
           handleSuccess();
           numberAnswerInput.classList.add('correct');
         } else {
-          handleWrong(currentNumber.toLocaleString());
+          handleWrong(formatEnglish(currentNumber));
           numberAnswerInput.classList.add('wrong');
         }
       }
@@ -1091,43 +1070,22 @@
 
     function handleWrong(correctAnswer) {
       playWrongSound();
-      explanationBody.innerHTML = `
-        The correct answer is: <strong style="color:#b45309;">${correctAnswer}</strong>
-        <div style="margin-top:4px; font-size:0.85rem; color:#64748b;">
-          Breakdown: ${currentNumber.toLocaleString()} = ${getPlaceValueBreakdownText()}
-        </div>
-      `;
+      explanationCard.innerHTML = `Correct: <strong style="color:#0f172a;">${correctAnswer}</strong>`;
       explanationCard.classList.add('show');
       speakText(currentWords);
-    }
-
-    function getPlaceValueBreakdownText() {
-      const str = String(currentNumber);
-      const len = str.length;
-      const parts = [];
-      for (let i = 0; i < len; i++) {
-        const d = parseInt(str[i], 10);
-        if (d !== 0) {
-          const val = d * Math.pow(10, len - 1 - i);
-          parts.push(val.toLocaleString());
-        }
-      }
-      return parts.join(' + ');
     }
 
     // =========================================================================
     // 🖱️ EVENT LISTENERS
     // =========================================================================
-
-    // Word Bank button clicks
-    document.querySelectorAll('.word-bank-btn').forEach(btn => {
+    document.querySelectorAll('.word-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        addWord(btn.dataset.word);
+        addWord(btn.dataset.word, btn.dataset.group || getWordGroup(btn.dataset.word));
       });
     });
 
     btnBackspace.addEventListener('click', backspaceWord);
-    btnClearWords.addEventListener('click', clearAllWords);
+    btnClear.addEventListener('click', clearAllWords);
     btnCheck.addEventListener('click', checkAnswer);
 
     btnNext.addEventListener('click', () => {
@@ -1139,12 +1097,11 @@
       if (e.key === 'Enter') checkAnswer();
     });
 
-    // Speak Button
-    speakQuestionBtn.addEventListener('click', () => {
+    speakBtn.addEventListener('click', () => {
       speakText(currentWords);
     });
 
-    // Mode Switching
+    // Mode Switching inside Collapsible Drawer
     modeNumToWords.addEventListener('click', () => {
       if (currentMode === 'numToWords') return;
       initAudio();
@@ -1163,7 +1120,7 @@
       loadQuestion();
     });
 
-    // Range selector
+    // Range selector inside Collapsible Drawer
     document.querySelectorAll('.range-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         document.querySelectorAll('.range-chip').forEach(c => c.classList.remove('active'));
