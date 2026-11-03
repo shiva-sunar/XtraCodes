@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>नेपाली संख्या १-१०० (Nepali Number Counting)</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --accent: #ec4899;
+      --correct: #16a34a;
+      --correct-bg: #dcfce7;
+      --wrong: #dc2626;
+      --wrong-bg: #fee2e2;
+      --bg: linear-gradient(135deg, #eef2ff 0%, #fae8ff 50%, #fef3c7 100%);
+      --card-bg: #ffffff;
+      --text: #1e1b4b;
+      --text-muted: #64748b;
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Mukta', sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .app-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 36px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 3px solid #ffffff;
+      position: relative;
+    }
+
+    /* Top Minimal Score Bar */
+    .top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .score-badge {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #3730a3;
+      background: #eef2ff;
+      border: 1.5px solid #c7d2fe;
+      padding: 4px 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speak-top-btn {
+      background: #fdf2f8;
+      border: 1.5px solid #fbcfe8;
+      color: #be185d;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .speak-top-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Progress Line */
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #ec4899);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+
+    /* Question Hero Display */
+    .hero-card {
+      width: 100%;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 2px dashed #cbd5e1;
+      border-radius: 20px;
+      padding: 18px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      min-height: 140px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Large Numbers / Sequence Display */
+    .question-sequence {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .seq-item {
+      font-size: 2.3rem;
+      font-weight: 900;
+      color: #1e1b4b;
+      padding: 4px 8px;
+      border-radius: 12px;
+      line-height: 1.1;
+    }
+
+    .seq-item.highlight-blank {
+      color: #4f46e5;
+      background: #e0e7ff;
+      border: 2px dashed #818cf8;
+      padding: 4px 14px;
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+
+    .hero-big-number {
+      font-size: 3.6rem;
+      font-weight: 900;
+      color: #4f46e5;
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+
+    .hero-sub-label {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    .hero-sub-label.word-highlight {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #db2777;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); border-color: #818cf8; }
+      50% { transform: scale(1.05); border-color: #ec4899; }
+    }
+
+    /* 2x2 Options Grid */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .opt-btn {
+      width: 100%;
+      min-height: 72px;
+      background: #ffffff;
+      border: 2.5px solid #e0e7ff;
+      border-bottom: 5px solid #c7d2fe;
+      border-radius: 18px;
+      cursor: pointer;
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s ease;
+      font-family: inherit;
+    }
+
+    .opt-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 3px;
+    }
+
+    .opt-main-text {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #1e1b4b;
+      line-height: 1.1;
+    }
+
+    .opt-sub-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .opt-btn.correct {
+      background: var(--correct-bg) !important;
+      border-color: var(--correct) !important;
+      border-bottom-color: #15803d !important;
+      color: #15803d !important;
+      transform: scale(1.02);
+    }
+
+    .opt-btn.correct .opt-main-text,
+    .opt-btn.correct .opt-sub-text {
+      color: #15803d !important;
+    }
+
+    .opt-btn.wrong {
+      background: var(--wrong-bg) !important;
+      border-color: var(--wrong) !important;
+      border-bottom-color: #b91c1c !important;
+      color: #991b1b !important;
+      animation: shake 0.4s ease;
+    }
+
+    .opt-btn.wrong .opt-main-text,
+    .opt-btn.wrong .opt-sub-text {
+      color: #991b1b !important;
+    }
+
+    /* Explanation Banner (on Wrong Answer) */
+    .explanation-card {
+      display: none;
+      width: 100%;
+      background: #fff1f2;
+      border: 2px solid #fda4af;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      text-align: center;
+      animation: popIn 0.25s ease;
+    }
+
+    .explanation-card.show {
+      display: block;
+    }
+
+    .explanation-ans {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #be123c;
+    }
+
+    /* Next Action Button */
+    .next-btn {
+      display: none;
+      width: 100%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #ffffff;
+      border: none;
+      border-bottom: 5px solid #3730a3;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      animation: popIn 0.25s ease;
+      font-family: inherit;
+    }
+
+    .next-btn.show {
+      display: flex;
+    }
+
+    .next-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 3px;
+    }
+
+    /* Collapsible Bottom Drawer */
+    .settings-drawer {
+      width: 100%;
+      border-radius: 16px;
+      border: 2px dashed #cbd5e1;
+      background: #f8fafc;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .settings-summary {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #4f46e5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+    }
+
+    .settings-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .settings-drawer[open] {
+      border-style: solid;
+      border-color: #c7d2fe;
+      background: #ffffff;
+    }
+
+    .drawer-content {
+      padding: 6px 14px 14px;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 8px 0 5px;
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .chip-btn {
+      flex: 1;
+      min-width: 75px;
+      padding: 8px 6px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #64748b;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.12s ease;
+      font-family: inherit;
+    }
+
+    .chip-btn.active {
+      background: #4f46e5;
+      color: #ffffff;
+      border-color: #3730a3;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+    }
+
+    .tools-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px dashed #e2e8f0;
+      margin-top: 6px;
+    }
+
+    .tool-btn {
+      background: transparent;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #64748b;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-family: inherit;
+    }
+
+    .tool-btn:hover {
+      background: #f1f5f9;
+      color: #1e1b4b;
+    }
+
+    /* End Celebration View */
+    .celebration-view {
+      display: none;
+      text-align: center;
+      padding: 24px 8px;
+      width: 100%;
+    }
+
+    .celebration-view.active {
+      display: block;
+      animation: popIn 0.35s ease;
+    }
+
+    .trophy-emoji {
+      font-size: 4.2rem;
+      margin-bottom: 12px;
+      animation: bounce 1s infinite alternate;
+    }
+
+    .celebration-title {
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #3730a3;
+      margin-bottom: 6px;
+    }
+
+    .celebration-score {
+      display: inline-block;
+      background: #fef3c7;
+      border: 3px solid #f59e0b;
+      color: #b45309;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin: 16px 0;
+    }
+
+    .restart-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #4f46e5, #ec4899);
+      color: #ffffff;
+      border: none;
+      border-bottom: 5px solid #3730a3;
+      padding: 14px;
+      border-radius: 16px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-card">
+
+    <!-- Active Game Screen -->
+    <div id="game-stage" style="width: 100%;">
+
+      <!-- Top Score & Audio Bar -->
+      <div class="top-bar">
+        <div class="score-badge" id="score-badge">⭐ ० / १०</div>
+        <button class="speak-top-btn" id="listen-btn" title="Listen to pronunciation">
+          <span>🗣️ सुनौं</span>
+        </button>
+      </div>
+
+      <!-- Thin Progress Bar -->
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <!-- Main Question Hero Card -->
+      <div class="hero-card" id="hero-card">
+        <!-- Rendered dynamically: Sequence (१२, १३, ❓), Digits, or Words -->
+      </div>
+
+      <!-- 2x2 Options Grid -->
+      <div class="options-grid" id="options-grid">
+        <!-- 4 choice buttons -->
+      </div>
+
+      <!-- Explanation on Wrong Answer -->
+      <div class="explanation-card" id="explanation-card">
+        <div class="explanation-ans" id="explanation-text"></div>
+      </div>
+
+      <!-- Next Button on Wrong Answer Review -->
+      <button class="next-btn" id="next-btn">
+        <span>अर्को प्रश्न (Next) ➔</span>
+      </button>
+
+      <!-- Collapsible Settings Drawer at Bottom -->
+      <details class="settings-drawer" id="settings-drawer">
+        <summary class="settings-summary">
+          <span>⚙️ Options (विकल्प)</span>
+          <span>▾</span>
+        </summary>
+        <div class="drawer-content">
+
+          <div class="section-label">प्रकार (Mode)</div>
+          <div class="chips-row">
+            <button class="chip-btn active" data-mode="seq">क्रमिक (१, २, ?)</button>
+            <button class="chip-btn" data-mode="digits">अंक (२५ ⇄ 25)</button>
+            <button class="chip-btn" data-mode="words">शब्द (२५ ⇄ पच्चिस)</button>
+          </div>
+
+          <div class="section-label">दायरा (Range)</div>
+          <div class="chips-row">
+            <button class="chip-btn active" data-range="20">१ - २०</button>
+            <button class="chip-btn" data-range="50">१ - ५०</button>
+            <button class="chip-btn" data-range="100">१ - १००</button>
+            <button class="chip-btn" data-range="tens">दशक (१०-१००)</button>
+          </div>
+
+          <div class="tools-row">
+            <button class="tool-btn" id="sound-toggle">🔊 Sound On</button>
+            <button class="tool-btn" id="voice-toggle">🗣️ Voice On</button>
+            <button class="tool-btn" id="restart-round-btn">🔄 Reset</button>
+          </div>
+
+        </div>
+      </details>
+
+    </div>
+
+    <!-- Celebration Screen -->
+    <div class="celebration-view" id="celebration-view">
+      <div class="trophy-emoji">🏆</div>
+      <h2 class="celebration-title" id="celebration-title">धेरै राम्रो! (Great Job!)</h2>
+      <div class="celebration-score" id="celebration-score">१० / १०</div>
+      <button class="restart-btn" id="restart-game-btn">
+        <span>फेरि खेल्नुहोस् (Play Again) 🔁</span>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // 🇳🇵 COMPLETE NEPALI 1-100 DATA DICTIONARY
+    // =========================================================================
+    const NEP_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+
+    function toNepaliDigits(n) {
+      return String(n).split('').map(d => NEP_DIGITS[parseInt(d, 10)] !== undefined ? NEP_DIGITS[parseInt(d, 10)] : d).join('');
+    }
+
+    function formatEnglish(n) {
+      return Number(n).toLocaleString('en-US');
+    }
+
+    const NEP_DATA = [
+      { num: 1, nep: '१', word: 'एक', rom: 'Ek' },
+      { num: 2, nep: '२', word: 'दुई', rom: 'Dui' },
+      { num: 3, nep: '३', word: 'तीन', rom: 'Teen' },
+      { num: 4, nep: '४', word: 'चार', rom: 'Chaar' },
+      { num: 5, nep: '५', word: 'पाँच', rom: 'Paanch' },
+      { num: 6, nep: '६', word: 'छ', rom: 'Chha' },
+      { num: 7, nep: '७', word: 'सात', rom: 'Saat' },
+      { num: 8, nep: '८', word: 'आठ', rom: 'Aath' },
+      { num: 9, nep: '९', word: 'नौ', rom: 'Nau' },
+      { num: 10, nep: '१०', word: 'दश', rom: 'Dasa' },
+      { num: 11, nep: '११', word: 'एघार', rom: 'Eghara' },
+      { num: 12, nep: '१२', word: 'बाह्र', rom: 'Baahra' },
+      { num: 13, nep: '१३', word: 'तेह्र', rom: 'Tehra' },
+      { num: 14, nep: '१४', word: 'चौध', rom: 'Chaudha' },
+      { num: 15, nep: '१५', word: 'पन्ध्र', rom: 'Pandra' },
+      { num: 16, nep: '१६', word: 'सोह्र', rom: 'Sohra' },
+      { num: 17, nep: '१७', word: 'सत्र', rom: 'Satra' },
+      { num: 18, nep: '१८', word: 'अठार', rom: 'Athara' },
+      { num: 19, nep: '१९', word: 'उन्नाइस', rom: 'Unnais' },
+      { num: 20, nep: '२०', word: 'बीस', rom: 'Bees' },
+      { num: 21, nep: '२१', word: 'एक्काइस', rom: 'Ekkaais' },
+      { num: 22, nep: '२२', word: 'बाइस', rom: 'Baais' },
+      { num: 23, nep: '२३', word: 'तेइस', rom: 'Teis' },
+      { num: 24, nep: '२४', word: 'चौबिस', rom: 'Chaubis' },
+      { num: 25, nep: '२५', word: 'पच्चिस', rom: 'Pachchis' },
+      { num: 26, nep: '२६', word: 'छब्बीस', rom: 'Chhabbis' },
+      { num: 27, nep: '२७', word: 'सत्ताइस', rom: 'Sattaais' },
+      { num: 28, nep: '२८', word: 'अट्ठाइस', rom: 'Atthaais' },
+      { num: 29, nep: '२९', word: 'उनन्तिस', rom: 'Unantis' },
+      { num: 30, nep: '३०', word: 'तीस', rom: 'Tees' },
+      { num: 31, nep: '३१', word: 'एकत्तिस', rom: 'Ekattis' },
+      { num: 32, nep: '३२', word: 'बत्तिस', rom: 'Battis' },
+      { num: 33, nep: '३३', word: 'तेत्तिस', rom: 'Tettis' },
+      { num: 34, nep: '३४', word: 'चौँतिस', rom: 'Chautis' },
+      { num: 35, nep: '३५', word: 'पैँतिस', rom: 'Paitis' },
+      { num: 36, nep: '३६', word: 'छत्तीस', rom: 'Chhattis' },
+      { num: 37, nep: '३७', word: 'सैँतिस', rom: 'Saitis' },
+      { num: 38, nep: '३८', word: 'अड्तीस', rom: 'Adtis' },
+      { num: 39, nep: '३९', word: 'उनन्चालीस', rom: 'Unanchalis' },
+      { num: 40, nep: '४०', word: 'चालीस', rom: 'Chalis' },
+      { num: 41, nep: '४१', word: 'एकचालीस', rom: 'Ekchalis' },
+      { num: 42, nep: '४२', word: 'बयालीस', rom: 'Bayalis' },
+      { num: 43, nep: '४३', word: 'त्रिचालीस', rom: 'Trichalis' },
+      { num: 44, nep: '४४', word: 'चवालीस', rom: 'Chawalis' },
+      { num: 45, nep: '४५', word: 'पैँतालीस', rom: 'Paintalis' },
+      { num: 46, nep: '४६', word: 'छयालीस', rom: 'Chhayalis' },
+      { num: 47, nep: '४७', word: 'सत्चालीस', rom: 'Satchalis' },
+      { num: 48, nep: '४८', word: 'अड्चालीस', rom: 'Adchalis' },
+      { num: 49, nep: '४९', word: 'उनन्चास', rom: 'Unanchas' },
+      { num: 50, nep: '५०', word: 'पचास', rom: 'Pachas' },
+      { num: 51, nep: '५१', word: 'एकाउन', rom: 'Ekaunna' },
+      { num: 52, nep: '५२', word: 'बाउन', rom: 'Baunna' },
+      { num: 53, nep: '५३', word: 'त्रिपन्न', rom: 'Tripanna' },
+      { num: 54, nep: '५४', word: 'चौवन्न', rom: 'Chauvanna' },
+      { num: 55, nep: '५५', word: 'पचपन्न', rom: 'Pachpanna' },
+      { num: 56, nep: '५६', word: 'छपन्न', rom: 'Chhapanna' },
+      { num: 57, nep: '५७', word: 'संताउन', rom: 'Santaunna' },
+      { num: 58, nep: '५८', word: 'अन्ठाउन', rom: 'Anthaunna' },
+      { num: 59, nep: '५९', word: 'उनन्साठी', rom: 'Unansathi' },
+      { num: 60, nep: '६०', word: 'साठी', rom: 'Saathi' },
+      { num: 61, nep: '६१', word: 'एकसट्ठी', rom: 'Eksatthi' },
+      { num: 62, nep: '६२', word: 'बासट्ठी', rom: 'Basatthi' },
+      { num: 63, nep: '६३', word: 'त्रिसट्ठी', rom: 'Trisatthi' },
+      { num: 64, nep: '६४', word: 'चौँसट्ठी', rom: 'Chaunsatthi' },
+      { num: 65, nep: '६५', word: 'पैँसट्ठी', rom: 'Painsatthi' },
+      { num: 66, nep: '६६', word: 'छयसट्ठी', rom: 'Chhayasatthi' },
+      { num: 67, nep: '६७', word: 'सतसट्ठी', rom: 'Satasatthi' },
+      { num: 68, nep: '६८', word: 'अठसट्ठी', rom: 'Athasatthi' },
+      { num: 69, nep: '६९', word: 'उनन्सत्तरी', rom: 'Unansattari' },
+      { num: 70, nep: '७०', word: 'सत्तरी', rom: 'Sattari' },
+      { num: 71, nep: '७१', word: 'एकहत्तर', rom: 'Ekhattari' },
+      { num: 72, nep: '७२', word: 'बहत्तर', rom: 'Bahattari' },
+      { num: 73, nep: '७३', word: 'त्रिहत्तर', rom: 'Trihattari' },
+      { num: 74, nep: '७४', word: 'चौहत्तर', rom: 'Chauhattari' },
+      { num: 75, nep: '७५', word: 'पचहत्तर', rom: 'Pachhattari' },
+      { num: 76, nep: '७६', word: 'छहत्तर', rom: 'Chhahattari' },
+      { num: 77, nep: '७७', word: 'सतहत्तर', rom: 'Satahattari' },
+      { num: 78, nep: '७८', word: 'अठहत्तर', rom: 'Athahattari' },
+      { num: 79, nep: '७९', word: 'उननासी', rom: 'Unasi' },
+      { num: 80, nep: '८०', word: 'असी', rom: 'Asi' },
+      { num: 81, nep: '८१', word: 'एकासी', rom: 'Ekasi' },
+      { num: 82, nep: '८२', word: 'बयासी', rom: 'Bayasi' },
+      { num: 83, nep: '८३', word: 'त्रियासी', rom: 'Triyasi' },
+      { num: 84, nep: '८४', word: 'चौरासी', rom: 'Chaurasi' },
+      { num: 85, nep: '८५', word: 'पचासी', rom: 'Pachasi' },
+      { num: 86, nep: '८६', word: 'छयासी', rom: 'Chhayasi' },
+      { num: 87, nep: '८७', word: 'सत्तासी', rom: 'Sattasi' },
+      { num: 88, nep: '८८', word: 'अट्ठासी', rom: 'Atthasi' },
+      { num: 89, nep: '८९', word: 'उनन्नब्बे', rom: 'Unannabbey' },
+      { num: 90, nep: '९०', word: 'नब्बे', rom: 'Nabbey' },
+      { num: 91, nep: '९१', word: 'एकानब्बे', rom: 'Ekanabbey' },
+      { num: 92, nep: '९२', word: 'बयानब्बे', rom: 'Bayanabbey' },
+      { num: 93, nep: '९३', word: 'त्रियानब्बे', rom: 'Triyanabbey' },
+      { num: 94, nep: '९४', word: 'चौरानब्बे', rom: 'Chauranabbey' },
+      { num: 95, nep: '९५', word: 'पन्चानब्बे', rom: 'Panchanabbey' },
+      { num: 96, nep: '९६', word: 'छयानब्बे', rom: 'Chhayanabbey' },
+      { num: 97, nep: '९७', word: 'संतानब्बे', rom: 'Santanabbey' },
+      { num: 98, nep: '९८', word: 'अन्ठानब्बे', rom: 'Anthanabbey' },
+      { num: 99, nep: '९९', word: 'उनन्सय', rom: 'Unansaya' },
+      { num: 100, nep: '१००', word: 'सय', rom: 'Saya' }
+    ];
+
+    // Fast lookup map by number
+    const NEP_MAP = {};
+    NEP_DATA.forEach(item => NEP_MAP[item.num] = item);
+
+    // =========================================================================
+    // ⚙️ GAME STATE
+    // =========================================================================
+    let currentMode = 'seq';      // 'seq' (Sequence), 'digits' (Devanagari ⇄ English), 'words' (Word match)
+    let currentRange = '20';      // '20', '50', '100', 'tens'
+    const QUESTIONS_PER_ROUND = 10;
+    const AUTO_ADVANCE_DELAY = 1100;
+
+    let questionDeck = [];
+    let currentIndex = 0;
+    let score = 0;
+    let isLocked = false;
+    let soundEnabled = true;
+    let voiceEnabled = true;
+    let currentSpokenWord = '';
+
+    // Elements
+    const gameStage = document.getElementById('game-stage');
+    const celebrationView = document.getElementById('celebration-view');
+    const scoreBadge = document.getElementById('score-badge');
+    const progressFill = document.getElementById('progress-fill');
+    const heroCard = document.getElementById('hero-card');
+    const optionsGrid = document.getElementById('options-grid');
+    const explanationCard = document.getElementById('explanation-card');
+    const explanationText = document.getElementById('explanation-text');
+    const nextBtn = document.getElementById('next-btn');
+    const listenBtn = document.getElementById('listen-btn');
+    const soundToggle = document.getElementById('sound-toggle');
+    const voiceToggle = document.getElementById('voice-toggle');
+    const restartRoundBtn = document.getElementById('restart-round-btn');
+    const restartGameBtn = document.getElementById('restart-game-btn');
+
+    // Confetti canvas
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let confetti = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // =========================================================================
+    // 🔊 AUDIO & VOICE SYNTHESIS
+    // =========================================================================
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, duration, type = 'sine', gainVal = 0.15) {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playCorrectChime() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(523.25, 0.1, 'triangle', 0.2); // C5
+      setTimeout(() => playTone(659.25, 0.1, 'triangle', 0.2), 90); // E5
+      setTimeout(() => playTone(783.99, 0.25, 'triangle', 0.25), 180); // G5
+    }
+
+    function playWrongSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      playTone(320, 0.15, 'sawtooth', 0.12);
+      setTimeout(() => playTone(240, 0.25, 'sawtooth', 0.12), 120);
+    }
+
+    function playWinSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        setTimeout(() => playTone(freq, 0.2, 'triangle', 0.2), i * 110);
+      });
+    }
+
+    // Pronounce Nepali numbers using Web Speech API
+    function speakNepali(text) {
+      if (!voiceEnabled || !('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        const voices = window.speechSynthesis.getVoices();
+        // Look for Nepali (ne-NP) or Hindi (hi-IN) voice
+        const nepaliVoice = voices.find(v => v.lang.startsWith('ne')) ||
+                            voices.find(v => v.lang.startsWith('hi')) ||
+                            voices.find(v => v.lang.includes('IN'));
+        if (nepaliVoice) utter.voice = nepaliVoice;
+        utter.rate = 0.85; // clean and gentle for kids
+        window.speechSynthesis.speak(utter);
+      } catch (e) {}
+    }
+
+    listenBtn.addEventListener('click', () => {
+      if (currentSpokenWord) speakNepali(currentSpokenWord);
+    });
+
+    // =========================================================================
+    // 🎊 CONFETTI SYSTEM
+    // =========================================================================
+    function launchConfetti(count = 35) {
+      const colors = ['#4f46e5', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+      for (let i = 0; i < count; i++) {
+        confetti.push({
+          x: canvas.width / 2 + (Math.random() * 200 - 100),
+          y: canvas.height * 0.45,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 25 + 10,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.floor(Math.random() * 10) - 10,
+          tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
+          tiltAngle: 0,
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * -10 - 4
+        });
+      }
+    }
+
+    function updateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = confetti.length - 1; i >= 0; i--) {
+        const p = confetti[i];
+        p.tiltAngle += p.tiltAngleIncremental;
+        p.y += (Math.cos(p.d) + 3 + p.r / 2) / 1.5;
+        p.x += Math.sin(p.d);
+        p.tilt = Math.sin(p.tiltAngle - (i / 3)) * 15;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.25;
+        p.vx *= 0.98;
+
+        ctx.beginPath();
+        ctx.lineWidth = p.r;
+        ctx.strokeStyle = p.color;
+        ctx.moveTo(p.x + p.tilt + (p.r / 2), p.y);
+        ctx.lineTo(p.x + p.tilt, p.y + p.tilt + (p.r / 2));
+        ctx.stroke();
+
+        if (p.y > canvas.height + 20) confetti.splice(i, 1);
+      }
+      requestAnimationFrame(updateConfetti);
+    }
+    requestAnimationFrame(updateConfetti);
+
+    // =========================================================================
+    // 🧠 QUESTION GENERATION
+    // =========================================================================
+    function getRangeNumbers() {
+      if (currentRange === '20') {
+        return NEP_DATA.slice(0, 20);
+      } else if (currentRange === '50') {
+        return NEP_DATA.slice(0, 50);
+      } else if (currentRange === 'tens') {
+        return NEP_DATA.filter(item => item.num % 10 === 0);
+      } else {
+        return NEP_DATA; // 1 to 100
+      }
+    }
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function generateDeck() {
+      const pool = getRangeNumbers();
+      const shuffledPool = shuffle(pool);
+      const deck = [];
+
+      for (let i = 0; i < QUESTIONS_PER_ROUND; i++) {
+        const target = shuffledPool[i % shuffledPool.length];
+
+        if (currentMode === 'seq') {
+          // Sequence Mode: e.g. [a, b, ?] or [a, ?, c]
+          // Choose sequence base
+          let num = target.num;
+          if (currentRange === 'tens') {
+            // Tens sequence: e.g. २०, ३०, ❓
+            let start = Math.max(10, Math.min(80, num - 10));
+            const seqNums = [start, start + 10, start + 20];
+            const blankIdx = 2; // blank is the last one (or 1)
+            const correctNum = seqNums[blankIdx];
+            const correctItem = NEP_MAP[correctNum];
+
+            // Distractors
+            const distractors = [];
+            while (distractors.length < 3) {
+              const dNum = (Math.floor(Math.random() * 10) + 1) * 10;
+              if (dNum !== correctNum && !distractors.includes(dNum)) {
+                distractors.push(dNum);
+              }
+            }
+
+            const options = shuffle([correctItem, ...distractors.map(d => NEP_MAP[d])]);
+            deck.push({
+              type: 'seq',
+              seqItems: seqNums.map((n, idx) => idx === blankIdx ? null : NEP_MAP[n]),
+              correct: correctItem,
+              options: options.map(opt => ({
+                main: opt.nep,
+                sub: `${formatEnglish(opt.num)} • ${opt.word}`,
+                val: opt.num
+              }))
+            });
+          } else {
+            // Consecutive sequence: e.g. २४, २५, ❓
+            const maxAllowed = parseInt(currentRange, 10);
+            let start = Math.max(1, Math.min(maxAllowed - 2, num - 1));
+            const seqNums = [start, start + 1, start + 2];
+            const blankIdx = Math.random() < 0.7 ? 2 : 1; // 70% last blank, 30% middle blank
+            const correctNum = seqNums[blankIdx];
+            const correctItem = NEP_MAP[correctNum];
+
+            // Distractors (close by numbers)
+            const distractors = [];
+            const offsets = [-2, -1, 1, 2, 3, 10, -10];
+            shuffle(offsets);
+            for (let off of offsets) {
+              const dNum = correctNum + off;
+              if (dNum >= 1 && dNum <= maxAllowed && dNum !== correctNum && !distractors.includes(dNum)) {
+                distractors.push(dNum);
+                if (distractors.length >= 3) break;
+              }
+            }
+            while (distractors.length < 3) {
+              const r = Math.floor(Math.random() * maxAllowed) + 1;
+              if (r !== correctNum && !distractors.includes(r)) distractors.push(r);
+            }
+
+            const options = shuffle([correctItem, ...distractors.map(d => NEP_MAP[d])]);
+            deck.push({
+              type: 'seq',
+              seqItems: seqNums.map((n, idx) => idx === blankIdx ? null : NEP_MAP[n]),
+              correct: correctItem,
+              options: options.map(opt => ({
+                main: opt.nep,
+                sub: `${formatEnglish(opt.num)} • ${opt.word}`,
+                val: opt.num
+              }))
+            });
+          }
+
+        } else if (currentMode === 'digits') {
+          // Devanagari ⇄ English Digits
+          const showNepInHero = Math.random() < 0.6; // 60% shows Nepali, pick English
+          const correctItem = target;
+          const distractors = [];
+          const maxNum = currentRange === 'tens' ? 100 : parseInt(currentRange, 10);
+
+          while (distractors.length < 3) {
+            const r = currentRange === 'tens'
+              ? (Math.floor(Math.random() * 10) + 1) * 10
+              : (Math.floor(Math.random() * maxNum) + 1);
+            if (r !== correctItem.num && !distractors.includes(r)) distractors.push(r);
+          }
+
+          const options = shuffle([correctItem, ...distractors.map(d => NEP_MAP[d])]);
+
+          deck.push({
+            type: 'digits',
+            heroMain: showNepInHero ? correctItem.nep : formatEnglish(correctItem.num),
+            heroSub: showNepInHero ? `(English मा कति?)` : `(नेपाली अंक छान्नुहोस्)`,
+            spoken: correctItem.word,
+            correct: correctItem,
+            options: options.map(opt => ({
+              main: showNepInHero ? formatEnglish(opt.num) : opt.nep,
+              sub: `${opt.word} (${opt.rom})`,
+              val: opt.num
+            }))
+          });
+
+        } else {
+          // Words Mode (२५ ⇄ पच्चिस)
+          const showWordInHero = Math.random() < 0.5;
+          const correctItem = target;
+          const distractors = [];
+          const maxNum = currentRange === 'tens' ? 100 : parseInt(currentRange, 10);
+
+          while (distractors.length < 3) {
+            const r = currentRange === 'tens'
+              ? (Math.floor(Math.random() * 10) + 1) * 10
+              : (Math.floor(Math.random() * maxNum) + 1);
+            if (r !== correctItem.num && !distractors.includes(r)) distractors.push(r);
+          }
+
+          const options = shuffle([correctItem, ...distractors.map(d => NEP_MAP[d])]);
+
+          deck.push({
+            type: 'words',
+            heroMain: showWordInHero ? correctItem.word : `${correctItem.nep} (${formatEnglish(correctItem.num)})`,
+            heroSub: showWordInHero ? `${correctItem.rom}` : `अक्षरमा के भनिन्छ?`,
+            spoken: correctItem.word,
+            correct: correctItem,
+            options: options.map(opt => ({
+              main: showWordInHero ? opt.nep : opt.word,
+              sub: showWordInHero ? formatEnglish(opt.num) : `${opt.nep} • ${opt.rom}`,
+              val: opt.num
+            }))
+          });
+        }
+      }
+
+      return deck;
+    }
+
+    // =========================================================================
+    // 🎮 GAMEPLAY FLOW
+    // =========================================================================
+    function startRound() {
+      questionDeck = generateDeck();
+      currentIndex = 0;
+      score = 0;
+      isLocked = false;
+
+      gameStage.style.display = 'block';
+      celebrationView.classList.remove('active');
+      explanationCard.classList.remove('show');
+      nextBtn.classList.remove('show');
+
+      updateScoreDisplay();
+      renderQuestion();
+    }
+
+    function updateScoreDisplay() {
+      scoreBadge.textContent = `⭐ ${toNepaliDigits(score)} / ${toNepaliDigits(questionDeck.length)}`;
+      const pct = (currentIndex / questionDeck.length) * 100;
+      progressFill.style.width = `${pct}%`;
+    }
+
+    function renderQuestion() {
+      if (currentIndex >= questionDeck.length) {
+        showCelebration();
+        return;
+      }
+
+      isLocked = false;
+      explanationCard.classList.remove('show');
+      nextBtn.classList.remove('show');
+
+      const q = questionDeck[currentIndex];
+      currentSpokenWord = q.correct.word;
+
+      // Speak automatically if voice enabled
+      setTimeout(() => {
+        if (voiceEnabled) speakNepali(currentSpokenWord);
+      }, 150);
+
+      // Render Hero Card
+      if (q.type === 'seq') {
+        let seqHtml = '<div class="question-sequence">';
+        q.seqItems.forEach(item => {
+          if (item === null) {
+            seqHtml += `<div class="seq-item highlight-blank">❓</div>`;
+          } else {
+            seqHtml += `<div class="seq-item">${item.nep}</div>`;
+          }
+        });
+        seqHtml += '</div>';
+        seqHtml += `<div class="hero-sub-label">खाली ठाउँमा के आउँछ? (What comes next?)</div>`;
+        heroCard.innerHTML = seqHtml;
+      } else {
+        heroCard.innerHTML = `
+          <div class="hero-big-number">${q.heroMain}</div>
+          <div class="hero-sub-label ${q.type === 'words' ? 'word-highlight' : ''}">${q.heroSub}</div>
+        `;
+      }
+
+      // Render Options Grid
+      optionsGrid.innerHTML = '';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerHTML = `
+          <div class="opt-main-text">${opt.main}</div>
+          <div class="opt-sub-text">${opt.sub}</div>
+        `;
+        btn.dataset.val = opt.val;
+        btn.addEventListener('click', () => handleOptionClick(btn, opt.val, q.correct));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleOptionClick(btn, selectedVal, correctItem) {
+      if (isLocked) return;
+      initAudio();
+
+      isLocked = true;
+      const isCorrect = (selectedVal === correctItem.num);
+
+      if (isCorrect) {
+        score++;
+        playCorrectChime();
+        launchConfetti(22);
+        btn.classList.add('correct');
+        speakNepali(correctItem.word);
+
+        setTimeout(() => {
+          currentIndex++;
+          updateScoreDisplay();
+          renderQuestion();
+        }, AUTO_ADVANCE_DELAY);
+
+      } else {
+        playWrongSound();
+        btn.classList.add('wrong');
+
+        // Highlight correct button
+        const allBtns = optionsGrid.querySelectorAll('.opt-btn');
+        allBtns.forEach(b => {
+          if (parseInt(b.dataset.val, 10) === correctItem.num) {
+            b.classList.add('correct');
+          }
+        });
+
+        // Show explanation
+        explanationText.innerHTML = `
+          <div>सही उत्तर (Correct): <strong>${correctItem.nep} (${formatEnglish(correctItem.num)})</strong></div>
+          <div style="font-size:0.95rem;color:#64748b;margin-top:2px;">अक्षरमा: <strong>${correctItem.word} (${correctItem.rom})</strong></div>
+        `;
+        explanationCard.classList.add('show');
+        nextBtn.classList.add('show');
+      }
+    }
+
+    nextBtn.addEventListener('click', () => {
+      initAudio();
+      currentIndex++;
+      updateScoreDisplay();
+      renderQuestion();
+    });
+
+    function showCelebration() {
+      progressFill.style.width = '100%';
+      gameStage.style.display = 'none';
+      celebrationView.classList.add('active');
+
+      const total = questionDeck.length;
+      document.getElementById('celebration-score').textContent = `${toNepaliDigits(score)} / ${toNepaliDigits(total)}`;
+
+      const title = document.getElementById('celebration-title');
+      if (score === total) {
+        title.textContent = 'उत्कृष्ट! पूर्ण अंक! (Perfect 10/10!) 🌟';
+        launchConfetti(60);
+      } else if (score >= total * 0.7) {
+        title.textContent = 'धेरै राम्रो! (Great Job!) 👏';
+        launchConfetti(35);
+      } else {
+        title.textContent = 'राम्रो प्रयास! (Good Effort!) 🌱';
+      }
+      playWinSound();
+    }
+
+    // =========================================================================
+    // ⚙️ SETTINGS CONTROLS
+    // =========================================================================
+    document.querySelectorAll('[data-mode]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        initAudio();
+        document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        currentMode = e.currentTarget.dataset.mode;
+        startRound();
+      });
+    });
+
+    document.querySelectorAll('[data-range]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        initAudio();
+        document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        currentRange = e.currentTarget.dataset.range;
+        startRound();
+      });
+    });
+
+    soundToggle.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+      if (soundEnabled) initAudio();
+    });
+
+    voiceToggle.addEventListener('click', () => {
+      voiceEnabled = !voiceEnabled;
+      voiceToggle.textContent = voiceEnabled ? '🗣️ Voice On' : '🔇 Voice Off';
+    });
+
+    restartRoundBtn.addEventListener('click', () => {
+      initAudio();
+      startRound();
+    });
+
+    restartGameBtn.addEventListener('click', () => {
+      initAudio();
+      startRound();
+    });
+
+    // Start on load
+    window.addEventListener('DOMContentLoaded', startRound);
+  </script>
+</body>
+</html>
