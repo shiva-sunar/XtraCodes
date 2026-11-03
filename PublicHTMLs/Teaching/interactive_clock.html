@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Interactive Clock ⏰</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: #ffffff;
+      --hour-color: #312e81;
+      --minute-color: #db2777;
+      --text: #0f172a;
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg-gradient);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .app-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Minimal Hero: ONLY Digital Time at Top */
+    .digital-hero {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0 10px 0;
+    }
+
+    .digital-time-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .digital-time {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: 2px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .digital-ampm {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #64748b;
+    }
+
+    .spoken-time {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 4px;
+      text-align: center;
+      min-height: 22px;
+    }
+
+    /* Clock Stage */
+    .clock-stage {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px 0 12px 0;
+    }
+
+    .clock-wrap {
+      width: 250px;
+      height: 250px;
+      max-width: 70vw;
+      max-height: 70vw;
+      position: relative;
+      cursor: grab;
+      touch-action: none;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.08));
+    }
+
+    .clock-wrap:active {
+      cursor: grabbing;
+    }
+
+    svg.clock-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Quick Jump Buttons Row */
+    .quick-controls {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .control-btn {
+      height: 38px;
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+      font-family: inherit;
+    }
+
+    .control-btn:active {
+      transform: translateY(2px);
+      background: #e2e8f0;
+    }
+
+    /* Collapsible Settings Drawer at Bottom */
+    .settings-drawer {
+      width: 100%;
+      margin-top: 6px;
+      border-top: 1.5px dashed #cbd5e1;
+      padding-top: 8px;
+    }
+
+    .settings-summary {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .settings-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .settings-content {
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tool-btn {
+      flex: 1;
+      height: 36px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: inherit;
+    }
+
+    .tool-btn:active {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-card">
+
+    <!-- Minimal Hero: ONLY Digital Time at Top -->
+    <div class="digital-hero">
+      <div class="digital-time-row">
+        <span class="digital-time" id="digital-clock">12:00</span>
+        <span class="digital-ampm" id="ampm-label">PM</span>
+      </div>
+      <div class="spoken-time" id="spoken-time">Twelve o'clock</div>
+    </div>
+
+    <!-- Analogue Clock (Interactive Draggable Minute Hand) -->
+    <div class="clock-stage">
+      <div class="clock-wrap" id="clock-container">
+        <svg class="clock-svg" viewBox="0 0 320 320" id="clock-svg">
+          <circle cx="160" cy="160" r="150" fill="#ffffff" stroke="#cbd5e1" stroke-width="6"/>
+          <circle cx="160" cy="160" r="141" fill="#fafafa"/>
+          <g id="clock-ticks"></g>
+          <g id="clock-numbers"></g>
+
+          <!-- Hour Hand (Indigo) -->
+          <g id="hour-hand-group">
+            <line x1="160" y1="160" x2="160" y2="92"
+                  stroke="var(--hour-color)" stroke-width="8.5" stroke-linecap="round"/>
+          </g>
+
+          <!-- Minute Hand (Pink, Draggable) -->
+          <g id="minute-hand-group">
+            <line x1="160" y1="160" x2="160" y2="45"
+                  stroke="var(--minute-color)" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="160" cy="45" r="11" fill="var(--minute-color)" stroke="#ffffff" stroke-width="2.5"/>
+          </g>
+
+          <!-- Center Cap -->
+          <circle cx="160" cy="160" r="7.5" fill="#1e1b4b"/>
+          <circle cx="160" cy="160" r="3" fill="#ffffff"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Quick Jump Controls -->
+    <div class="quick-controls">
+      <button class="control-btn" id="btn-minus-5">-5m</button>
+      <button class="control-btn" id="btn-plus-5">+5m</button>
+      <button class="control-btn" id="btn-plus-15">+15m</button>
+      <button class="control-btn" id="btn-plus-1hr">+1h</button>
+      <button class="control-btn" id="btn-speak" title="Pronounce">🗣️</button>
+    </div>
+
+    <!-- Collapsible Settings at Bottom -->
+    <details class="settings-drawer" id="settings-drawer">
+      <summary class="settings-summary">⚙️ Options</summary>
+      <div class="settings-content">
+        <div class="setting-row">
+          <button class="tool-btn" id="snap-btn">🧲 Snap: 5m</button>
+          <button class="tool-btn" id="ampm-toggle">☀️ AM / PM</button>
+          <button class="tool-btn" id="reset-btn">🔄 Reset</button>
+        </div>
+        <div class="setting-row">
+          <button class="tool-btn" id="sound-btn">🔊 Sound On</button>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <script>
+    function formatEnglish(n) {
+      return Number(n).toLocaleString('en-US');
+    }
+
+    let currentHours = 12;
+    let currentMinutes = 0;
+    let isAm = false;
+    let snapToFive = true;
+    let soundEnabled = true;
+
+    // Interaction tracking
+    let isDragging = false;
+    let previousAngle = 0;
+
+    // DOM Elements
+    const clockContainer = document.getElementById('clock-container');
+    const hourHandGroup = document.getElementById('hour-hand-group');
+    const minuteHandGroup = document.getElementById('minute-hand-group');
+    const digitalClock = document.getElementById('digital-clock');
+    const ampmLabel = document.getElementById('ampm-label');
+    const spokenTimeElem = document.getElementById('spoken-time');
+    const clockTicksG = document.getElementById('clock-ticks');
+    const clockNumbersG = document.getElementById('clock-numbers');
+
+    const btnMinus5 = document.getElementById('btn-minus-5');
+    const btnPlus5 = document.getElementById('btn-plus-5');
+    const btnPlus15 = document.getElementById('btn-plus-15');
+    const btnPlus1hr = document.getElementById('btn-plus-1hr');
+    const btnSpeak = document.getElementById('btn-speak');
+    const resetBtn = document.getElementById('reset-btn');
+    const soundBtn = document.getElementById('sound-btn');
+    const snapBtn = document.getElementById('snap-btn');
+    const ampmToggle = document.getElementById('ampm-toggle');
+
+    // Build clock dial with English digits
+    function buildClockFace() {
+      clockTicksG.innerHTML = '';
+      clockNumbersG.innerHTML = '';
+      const cx = 160, cy = 160;
+
+      for (let m = 0; m < 60; m++) {
+        const angle = (m * 6) * (Math.PI / 180);
+        const isFive = (m % 5 === 0);
+        const rOuter = 139;
+        const rInner = isFive ? 125 : 131;
+
+        const x1 = cx + rOuter * Math.sin(angle);
+        const y1 = cy - rOuter * Math.cos(angle);
+        const x2 = cx + rInner * Math.sin(angle);
+        const y2 = cy - rInner * Math.cos(angle);
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('stroke', isFive ? '#4f46e5' : '#cbd5e1');
+        line.setAttribute('stroke-width', isFive ? '3.5' : '1.5');
+        line.setAttribute('stroke-linecap', 'round');
+        clockTicksG.appendChild(line);
+      }
+
+      for (let h = 1; h <= 12; h++) {
+        const angle = (h * 30) * (Math.PI / 180);
+        const rNum = 108;
+        const x = cx + rNum * Math.sin(angle);
+        const y = cy - rNum * Math.cos(angle) + 8;
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('font-size', '22');
+        text.setAttribute('font-weight', '900');
+        text.setAttribute('fill', '#0f172a');
+        text.setAttribute('font-family', 'system-ui, sans-serif');
+        text.textContent = formatEnglish(h);
+        clockNumbersG.appendChild(text);
+      }
+    }
+
+    // Audio
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioClass) audioCtx = new AudioClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTick() {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800 + Math.random() * 80, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+      } catch (e) {}
+    }
+
+    function speakCurrentTime() {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const text = spokenTimeElem.textContent + ', ' + (isAm ? 'A M' : 'P M');
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const NUMBER_WORDS = [
+      'Twelve', 'One', 'Two', 'Three', 'Four', 'Five',
+      'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'
+    ];
+
+    function getSpokenTime(h, m) {
+      const nextHour = (h % 12) + 1;
+      const hWord = NUMBER_WORDS[h];
+      const nextHWord = NUMBER_WORDS[nextHour];
+
+      if (m === 0) return `${hWord} o'clock`;
+      if (m === 15) return `Quarter past ${hWord}`;
+      if (m === 30) return `Half past ${hWord}`;
+      if (m === 45) return `Quarter to ${nextHWord}`;
+      if (m < 30) return `${m} minute${m === 1 ? '' : 's'} past ${hWord}`;
+      const toMinutes = 60 - m;
+      return `${toMinutes} minute${toMinutes === 1 ? '' : 's'} to ${nextHWord}`;
+    }
+
+    function updateDisplay(withTick = false) {
+      const mm = currentMinutes < 10 ? '0' + currentMinutes : currentMinutes;
+      digitalClock.textContent = `${currentHours}:${mm}`;
+      ampmLabel.textContent = isAm ? 'AM' : 'PM';
+      spokenTimeElem.textContent = getSpokenTime(currentHours, currentMinutes);
+
+      const minuteDeg = currentMinutes * 6;
+      const hourDeg = ((currentHours % 12) * 30) + (currentMinutes * 0.5);
+
+      hourHandGroup.setAttribute('transform', `rotate(${hourDeg} 160 160)`);
+      minuteHandGroup.setAttribute('transform', `rotate(${minuteDeg} 160 160)`);
+
+      if (withTick) playTick();
+    }
+
+    function stepMinutes(deltaM) {
+      initAudio();
+      let totalM = (currentHours % 12) * 60 + currentMinutes + deltaM;
+
+      while (totalM < 0) {
+        totalM += 720;
+        isAm = !isAm;
+      }
+      while (totalM >= 720) {
+        totalM -= 720;
+        isAm = !isAm;
+      }
+
+      let newH = Math.floor(totalM / 60);
+      if (newH === 0) newH = 12;
+      currentHours = newH;
+      currentMinutes = totalM % 60;
+
+      updateDisplay(true);
+    }
+
+    // Pointer Drag on Clock
+    function getAngleFromPointer(clientX, clientY) {
+      const rect = clockContainer.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = clientX - cx;
+      const dy = clientY - cy;
+
+      let rad = Math.atan2(dy, dx);
+      let deg = rad * (180 / Math.PI) + 90;
+      if (deg < 0) deg += 360;
+      return deg;
+    }
+
+    function handlePointerDown(e) {
+      initAudio();
+      isDragging = true;
+      clockContainer.setPointerCapture(e.pointerId);
+      previousAngle = getAngleFromPointer(e.clientX, e.clientY);
+      updateClockFromPointer(e.clientX, e.clientY);
+    }
+
+    function handlePointerMove(e) {
+      if (!isDragging) return;
+      updateClockFromPointer(e.clientX, e.clientY);
+    }
+
+    function handlePointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      try { clockContainer.releasePointerCapture(e.pointerId); } catch(err) {}
+    }
+
+    function updateClockFromPointer(clientX, clientY) {
+      const angle = getAngleFromPointer(clientX, clientY);
+      let diff = angle - previousAngle;
+      if (diff < -180) diff += 360;
+      if (diff > 180) diff -= 360;
+
+      let rawMinute = Math.round(angle / 6) % 60;
+      if (snapToFive) {
+        rawMinute = Math.round(rawMinute / 5) * 5 % 60;
+      }
+
+      if (rawMinute !== currentMinutes) {
+        // Detect crossing 12 (0 min)
+        if (previousAngle > 300 && angle < 60) {
+          currentHours = (currentHours % 12) + 1;
+          if (currentHours === 12) isAm = !isAm;
+        } else if (previousAngle < 60 && angle > 300) {
+          currentHours = (currentHours - 1) <= 0 ? 12 : currentHours - 1;
+          if (currentHours === 11) isAm = !isAm;
+        }
+
+        currentMinutes = rawMinute;
+        updateDisplay(true);
+      }
+      previousAngle = angle;
+    }
+
+    clockContainer.addEventListener('pointerdown', handlePointerDown);
+    clockContainer.addEventListener('pointermove', handlePointerMove);
+    clockContainer.addEventListener('pointerup', handlePointerUp);
+    clockContainer.addEventListener('pointercancel', handlePointerUp);
+
+    // Mouse scroll
+    clockContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const step = snapToFive ? 5 : 1;
+      stepMinutes(e.deltaY < 0 ? step : -step);
+    }, { passive: false });
+
+    btnMinus5.addEventListener('click', () => stepMinutes(-5));
+    btnPlus5.addEventListener('click', () => stepMinutes(5));
+    btnPlus15.addEventListener('click', () => stepMinutes(15));
+    btnPlus1hr.addEventListener('click', () => stepMinutes(60));
+    btnSpeak.addEventListener('click', speakCurrentTime);
+
+    resetBtn.addEventListener('click', () => {
+      currentHours = 12;
+      currentMinutes = 0;
+      isAm = false;
+      updateDisplay(true);
+    });
+
+    snapBtn.addEventListener('click', () => {
+      snapToFive = !snapToFive;
+      snapBtn.textContent = snapToFive ? '🧲 Snap: 5m' : '🧲 Snap: 1m';
+    });
+
+    ampmToggle.addEventListener('click', () => {
+      isAm = !isAm;
+      updateDisplay(true);
+    });
+
+    soundBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundBtn.textContent = soundEnabled ? '🔊 Sound On' : '🔇 Sound Off';
+      if (soundEnabled) initAudio();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      buildClockFace();
+      updateDisplay();
+    });
+  </script>
+</body>
+</html>

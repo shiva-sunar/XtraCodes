@@ -422,13 +422,13 @@
       <span>+</span>
       <span class="num-red" id="num-b-display">5</span>
       <span class="eq-sign">=</span>
-      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2"
+      <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" lang="en"
              class="answer-box" id="answer-input" placeholder="?" autocomplete="off" />
     </div>
 
     <!-- Toggle Helper Button (Collapsible Trigger) -->
     <button class="toggle-pebbles-btn" id="toggle-pebbles-btn" type="button">
-      <span id="toggle-btn-label">🪨 Show Pebbles</span>
+      <span id="toggle-btn-label">🪨 Pebbles</span>
       <span class="toggle-arrow" id="toggle-arrow">▼</span>
     </button>
 
@@ -550,6 +550,11 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // Force English digits even when Android device locale is Nepali
+    function formatEnglish(n) {
+      return Number(n).toLocaleString('en-US');
+    }
+
     // =========================================================================
     // 🗂️ COLLAPSIBLE PEBBLES LOGIC
     // =========================================================================
@@ -558,11 +563,11 @@
       if (open) {
         pebblesDrawer.classList.add('open');
         togglePebblesBtn.classList.add('active');
-        toggleBtnLabel.textContent = '🪨 Hide Pebbles';
+        toggleBtnLabel.textContent = '🪨 Pebbles';
       } else {
         pebblesDrawer.classList.remove('open');
         togglePebblesBtn.classList.remove('active');
-        toggleBtnLabel.textContent = '🪨 Show Pebbles';
+        toggleBtnLabel.textContent = '🪨 Pebbles';
       }
     }
 
@@ -696,8 +701,8 @@
       numA = q.a;
       numB = q.b;
 
-      numADisplay.textContent = numA;
-      numBDisplay.textContent = numB;
+      numADisplay.textContent = formatEnglish(numA);
+      numBDisplay.textContent = formatEnglish(numB);
       answerInput.value = '';
       answerInput.disabled = false;
       answerInput.className = 'answer-box';
@@ -705,7 +710,7 @@
       btnCheck.disabled = false;
       btnNext.classList.remove('show');
 
-      scoreDisplay.textContent = `⭐ ${score} / 10`;
+      scoreDisplay.textContent = `⭐ ${formatEnglish(score)} / 10`;
 
       // Collapse by default for new question (visible only when needed)
       setPebblesOpen(false);
@@ -918,7 +923,7 @@
         playWinSound();
         launchConfetti();
         answerInput.classList.add('correct');
-        scoreDisplay.textContent = `⭐ ${score} / 10`;
+        scoreDisplay.textContent = `⭐ ${formatEnglish(score)} / 10`;
 
         btnCheck.disabled = true;
         answerInput.disabled = true;

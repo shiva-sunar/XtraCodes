@@ -58,16 +58,16 @@
     .header {
       width: 100%;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .badge {
       background: #eef2ff;
       border: 2px solid #c7d2fe;
       color: var(--primary-dark);
-      padding: 6px 14px;
+      padding: 5px 14px;
       border-radius: 999px;
       font-weight: 800;
       font-size: 0.92rem;
@@ -76,20 +76,14 @@
       gap: 6px;
     }
 
-    .mode-status-badge {
-      background: #fdf2f8;
-      border-color: #fbcfe8;
-      color: #be185d;
-    }
-
     /* Progress Bar */
     .progress-wrap {
       width: 100%;
-      height: 10px;
+      height: 6px;
       background: #e2e8f0;
       border-radius: 999px;
       overflow: hidden;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .progress-bar {
@@ -630,9 +624,6 @@
 
       <!-- Header & Score Bar -->
       <div class="header">
-        <div class="badge mode-status-badge" id="mode-status-badge">
-          <span>➕ Addition • 1 & 2 Digits</span>
-        </div>
         <div class="badge" id="score-badge">
           <span>⭐ 0 / 10</span>
         </div>
@@ -673,35 +664,35 @@
       <!-- Bottom Parameter Controls (Collapsible, collapsed by default) -->
       <details class="settings-collapse" id="settings-collapse">
         <summary class="settings-summary">
-          <span>⚙️ Settings: Operation & Numbers</span>
+          <span>⚙️ Options</span>
           <span class="chevron-icon">▾</span>
         </summary>
         <div class="bottom-settings-card">
-          <div class="settings-row-label">Operation:</div>
+          <div class="settings-row-label">Operation</div>
           <div class="mode-pills">
-            <button class="mode-tab active" data-mode="add">➕ Addition</button>
-            <button class="mode-tab" data-mode="sub">➖ Subtraction</button>
+            <button class="mode-tab active" data-mode="add">➕ Add</button>
+            <button class="mode-tab" data-mode="sub">➖ Sub</button>
             <button class="mode-tab" data-mode="mixed">🔀 Mixed</button>
           </div>
 
-          <div class="settings-row-label">Numbers:</div>
+          <div class="settings-row-label">Numbers</div>
           <div class="digits-pills">
-            <button class="digit-tab" data-digits="1-digit">1-Digit (1-9)</button>
-            <button class="digit-tab" data-digits="2-digit">2-Digits (10-99)</button>
-            <button class="digit-tab active" data-digits="mixed">Mixed (1 & 2)</button>
+            <button class="digit-tab" data-digits="1-digit">1-Digit</button>
+            <button class="digit-tab" data-digits="2-digit">2-Digits</button>
+            <button class="digit-tab active" data-digits="mixed">Mixed</button>
+          </div>
+
+          <!-- Utilities inside Drawer -->
+          <div class="footer-tools">
+            <button class="tool-btn" id="sound-btn">
+              🔊 Sound
+            </button>
+            <button class="tool-btn" id="clear-btn">
+              🗑️ Clear
+            </button>
           </div>
         </div>
       </details>
-
-      <!-- Footer Utilities -->
-      <div class="footer-tools">
-        <button class="tool-btn" id="sound-btn">
-          🔊 Sound On
-        </button>
-        <button class="tool-btn" id="clear-btn">
-          🗑️ Clear
-        </button>
-      </div>
 
     </div>
 
@@ -742,7 +733,6 @@
     const endScreen = document.getElementById('end-screen');
     const scoreBadge = document.getElementById('score-badge');
     const progressBar = document.getElementById('progress-bar');
-    const modeStatusBadge = document.getElementById('mode-status-badge');
     const columnStage = document.getElementById('column-stage');
     const checkAnswerBtn = document.getElementById('check-answer-btn');
     const explanationCard = document.getElementById('explanation-card');
@@ -756,6 +746,11 @@
     const clearBtn = document.getElementById('clear-btn');
     const restartBtn = document.getElementById('restart-btn');
     const settingsCollapse = document.getElementById('settings-collapse');
+
+    // Force English digits even when Android device locale is Nepali
+    function formatEnglish(n) {
+      return Number(n).toLocaleString('en-US');
+    }
 
     // Confetti canvas setup
     const canvas = document.getElementById('confetti-canvas');
@@ -1050,15 +1045,7 @@
     // 🎮 GAMEPLAY FLOW
     // =========================================================================
     function updateHeaderBadge() {
-      let opText = '➕ Addition';
-      if (currentMode === 'sub') opText = '➖ Subtraction';
-      else if (currentMode === 'mixed') opText = '🔀 Mixed';
-
-      let digText = '1 & 2 Digits';
-      if (digitSetting === '1-digit') digText = '1-Digit';
-      else if (digitSetting === '2-digit') digText = '2-Digits';
-
-      modeStatusBadge.innerHTML = `<span>${opText} • ${digText}</span>`;
+      // Kept clean and minimal - no verbose banner at top
     }
 
     function startGame() {
@@ -1080,7 +1067,7 @@
     }
 
     function updateScoreDisplay() {
-      scoreBadge.innerHTML = `<span>⭐ ${score} / ${questionDeck.length}</span>`;
+      scoreBadge.innerHTML = `<span>⭐ ${formatEnglish(score)} / ${formatEnglish(questionDeck.length)}</span>`;
       const progressPercent = (currentIndex / questionDeck.length) * 100;
       progressBar.style.width = `${progressPercent}%`;
     }
@@ -1120,7 +1107,7 @@
           const title = q.op === '+' ? 'Carry box' : 'Borrow box';
           html += `
             <div class="col-cell">
-              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" lang="en"
                      class="digit-box carry-box" id="carry-box"
                      title="${title}" autocomplete="off">
             </div>`;
@@ -1160,7 +1147,7 @@
         if (pos < ansStr.length) {
           html += `
             <div class="col-cell">
-              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" lang="en"
                      class="digit-box ans-box" id="ans-box-${pos}" data-pos="${pos}"
                      autocomplete="off">
             </div>`;
@@ -1328,7 +1315,7 @@
         ansBoxes.forEach(b => b.classList.add('wrong'));
 
         // Show column breakdown
-        explanationTitle.innerHTML = `<span>💡 Solution: ${q.a} ${q.op} ${q.b} = ${q.answer}</span>`;
+        explanationTitle.innerHTML = `<span>💡 Solution: ${formatEnglish(q.a)} ${q.op} ${formatEnglish(q.b)} = ${formatEnglish(q.answer)}</span>`;
         explanationSteps.innerHTML = buildExplanationHTML(q, enteredValStr);
         explanationCard.style.display = 'block';
         explanationCard.className = 'explanation-card show wrong';
@@ -1344,7 +1331,7 @@
       endScreen.classList.add('active');
 
       const total = questionDeck.length;
-      document.getElementById('final-score').textContent = `${score} / ${total}`;
+      document.getElementById('final-score').textContent = `${formatEnglish(score)} / ${formatEnglish(total)}`;
 
       const title = document.getElementById('celebrate-title');
       const subtitle = document.getElementById('celebrate-subtitle');
