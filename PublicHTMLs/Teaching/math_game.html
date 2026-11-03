@@ -1116,14 +1116,13 @@
       // Digit positions from highest down to 0 (ones)
       for (let pos = numDigits - 1; pos >= 0; pos--) {
         if (pos === 1) {
-          // Carry box right above tens column
-          const placeholder = q.op === '+' ? '1' : 'b';
+          // Carry box right above tens column (completely blank so it doesn't confuse her)
           const title = q.op === '+' ? 'Carry box' : 'Borrow box';
           html += `
             <div class="col-cell">
               <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
                      class="digit-box carry-box" id="carry-box"
-                     placeholder="${placeholder}" title="${title}" autocomplete="off">
+                     title="${title}" autocomplete="off">
             </div>`;
         } else {
           html += `<div class="col-cell"></div>`;
